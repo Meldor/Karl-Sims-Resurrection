@@ -12,7 +12,7 @@ namespace ProveMotoreFisico
         //posizione, rispetto al centro delle rispettive parti, dei punti di contatto dei muscoli DIRetto e INVerso
         Vector2 LocalFigliaDir, LocalFigliaInv, LocalPadreDir, LocalPadreInv;
         //forza massima applicabile
-        float MaxForce;
+        public float MaxForce;
         FParte PartePadre, ParteFiglia;
         //posizione dei vari punti di contatto in coordinate assolute
         Vector2 WorldFiglioDir

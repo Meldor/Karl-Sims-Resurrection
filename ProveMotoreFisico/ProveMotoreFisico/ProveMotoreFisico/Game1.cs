@@ -19,6 +19,10 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
+using System.Runtime.InteropServices;
+
+
+
 namespace ProveMotoreFisico
 {
     /// <summary>
@@ -27,6 +31,10 @@ namespace ProveMotoreFisico
     /// 
     public class Game1 : Microsoft.Xna.Framework.Game
     {
+        [DllImport("user32.dll")]
+
+        static extern IntPtr GetForegroundWindow(); 
+
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         SpriteFont arial;
@@ -40,11 +48,7 @@ namespace ProveMotoreFisico
 
         Camera camera;
         World world;
-        int zoom=10;
-        const float gravity = 10;
-        const int screenWidth = 1024;
-        const int screenHeigh = 700;
-        const int controlsAreaHeigh = 200;
+        
         Vector2 floorSize, floorPosition;
         Fixture floor;
 
@@ -55,26 +59,27 @@ namespace ProveMotoreFisico
         
         FormListBox list;
 
-        //private Thread trd;
         Thread trd;
         int comando = 0;
+        bool muscoli = true;
 
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
-            graphics.PreferredBackBufferHeight = screenHeigh;
-            graphics.PreferredBackBufferWidth = screenWidth;
+            graphics.PreferredBackBufferHeight = Const.ScreenHeigh;
+            graphics.PreferredBackBufferWidth = Const.ScreenWidth;
             Content.RootDirectory = "Content";
 
-            trd = new Thread(new ThreadStart(this.server));
+            trd = new Thread(new ThreadStart(this.ServerMethod));
             trd.IsBackground = true;
             trd.Start();
-            
-
-
         }
 
-        
+        /*protected override void OnExiting(object sender, EventArgs args)
+        {
+            client.Close();
+            base.OnExiting(sender, args);
+        }*/
 
         /// <summary>
         /// Allows the game to perform any initialization it needs to before starting to run.
@@ -91,7 +96,7 @@ namespace ProveMotoreFisico
             textureOrigin = rectangleSize / 2;
             blocks = new List<Fixture>();
             
-            world = new World(new Vector2(0, gravity));
+            world = new World(new Vector2(0, Const.Gravity));
             rectTexture = RectangularTexture(graphics.GraphicsDevice, 1000, 1000, Color.White);
 
             floor = FixtureFactory.CreateRectangle(world, floorSize.X, floorSize.Y, 0.1f, floorPosition);
@@ -105,7 +110,7 @@ namespace ProveMotoreFisico
             String[] listItems = new String[2];
             listItems[0] = "Creazione di blocchi";
             listItems[1] = "Manipolazione creatura";
-            list = WinFormsHelper.CreateListBox(listItems, new Vector2(10, screenHeigh - controlsAreaHeigh + 10), null, Window);
+            list = WinFormsHelper.CreateListBox(listItems, new Vector2(10, Const.ScreenHeigh - Const.ControlsAreaHeigh + 10), null, Window);
             /*
             System.Windows.Forms.TextBox text = new System.Windows.Forms.TextBox();
             System.Windows.Forms.Control.FromHandle(Window.Handle).Controls.Add(text);*/
@@ -154,7 +159,7 @@ namespace ProveMotoreFisico
 
         Vector2 partRelativeMouseProjection; //proiezione della posizione del mouse sul bordo più vicino della parte selezionata, se è possibile calcolarla
         //(corrisponde alla posizione, in coordinate grafiche e relative alla parte selezionata, del quadratino rosso)
-        Side projectionSide;
+        Side projectionSide;  //lato in cui si trova la proiezione del mouse
 
         /// <summary>
         /// Allows the game to run logic such as updating the world,
@@ -166,270 +171,277 @@ namespace ProveMotoreFisico
             kCurrentState = Keyboard.GetState();
             mCurrentState = Mouse.GetState();
 
-            #region Telecamera
-            //matrice di traslazione per passare dal sistema di riferimento della finestra a quello del mondo, traslato a causa della telecamera
-            matrice = Matrix.CreateTranslation(new Vector3(camera.Pos, 0) - new Vector3(GraphicsDevice.Viewport.Width*0.5f, GraphicsDevice.Viewport.Height*0.5f, 0));
-            //posizione del mouse nelle coordinate traslate tenendo conto della telecamera
-            mousePos = Vector2.Transform(new Vector2(mCurrentState.X, mCurrentState.Y), matrice);
-
-            if (kCurrentState.IsKeyDown(Keys.H))
-                zoom=zoom+ 1;
-            if (kCurrentState.IsKeyDown(Keys.L))
+            //controlla l'input solo se la finestra ha il focus per evitare input non desiderati mentre si utilizza un altra applicazione
+            //(ad esempio il client di controllo)
+            if (GetForegroundWindow() == this.Window.Handle)
             {
-                if ((zoom-1)>0)
-                   zoom = zoom - 1;
-            }
+
+                #region Telecamera
+                //matrice di traslazione per passare dal sistema di riferimento della finestra a quello del mondo, traslato a causa della telecamera
+                matrice = Matrix.CreateTranslation(new Vector3(camera.Pos, 0) - new Vector3(GraphicsDevice.Viewport.Width * 0.5f, GraphicsDevice.Viewport.Height * 0.5f, 0));
+                //posizione del mouse nelle coordinate traslate tenendo conto della telecamera
+                mousePos = Vector2.Transform(new Vector2(mCurrentState.X, mCurrentState.Y), matrice);
+
+                //varia lo zoom
+                if (kCurrentState.IsKeyDown(Keys.H))
+                    Const.Zoom = Const.Zoom + 1;
+                if (kCurrentState.IsKeyDown(Keys.L))
+                {
+                    if ((Const.Zoom - 1) > 0)
+                        Const.Zoom = Const.Zoom - 1;
+                }
 
 
 
-            //movimento telecamera
-            if (kCurrentState.IsKeyDown(Keys.W))
-                camera.Muovi(new Vector2(0, -3));
-            if (kCurrentState.IsKeyDown(Keys.A))
-                camera.Muovi(new Vector2(-3, 0));
-            if (kCurrentState.IsKeyDown(Keys.S))
-                camera.Muovi(new Vector2(0, 3));
-            if (kCurrentState.IsKeyDown(Keys.D))
-                camera.Muovi(new Vector2(3, 0));
-            #endregion
+                //movimento telecamera
+                if (kCurrentState.IsKeyDown(Keys.W))
+                    camera.Muovi(new Vector2(0, -3));
+                if (kCurrentState.IsKeyDown(Keys.A))
+                    camera.Muovi(new Vector2(-3, 0));
+                if (kCurrentState.IsKeyDown(Keys.S))
+                    camera.Muovi(new Vector2(0, 3));
+                if (kCurrentState.IsKeyDown(Keys.D))
+                    camera.Muovi(new Vector2(3, 0));
+                #endregion
 
-            //blocca/muove le parti
-            if (kCurrentState.IsKeyDown(Keys.P) && kPreviousState.IsKeyUp(Keys.P))
-            {
-                moving = !moving;
-                if (moving)
-                    foreach (FParte part in partList)
-                        part.BodyType = BodyType.Dynamic;
-                else
-                    foreach (FParte part in partList)
-                        part.BodyType = BodyType.Static;
-            }
+                //blocca/muove le parti
+                if (kCurrentState.IsKeyDown(Keys.P) && kPreviousState.IsKeyUp(Keys.P))
+                {
+                    moving = !moving;
+                    if (moving)
+                        foreach (FParte part in partList)
+                            part.BodyType = BodyType.Dynamic;
+                    else
+                        foreach (FParte part in partList)
+                            part.BodyType = BodyType.Static;
+                }
 
-            //regola MaxForce
-            if (kCurrentState.IsKeyDown(Keys.PageUp))
-                Const.MaxForce += 0.5f;
-            if (kCurrentState.IsKeyDown(Keys.PageDown))
-                Const.MaxForce = MathHelper.Clamp(Const.MaxForce - 0.5f, 0.5f, 1e6f);
-
-            #region Selezione parte
-            //controlla se si tenta di selezionare una parte
-            if (!drawingPart && (mCurrentState.LeftButton == ButtonState.Pressed) && (mPreviousState.LeftButton == ButtonState.Released))
+                #region Selezione parte
+                //controlla se si tenta di selezionare una parte
+                if (!drawingPart && (mCurrentState.LeftButton == ButtonState.Pressed) && (mPreviousState.LeftButton == ButtonState.Released))
+                    foreach (FParte parte in partList)
+                    {
+                        Vector2 partRelativeMousePos = Coord.InvTranslateAndRotate(mousePos, Coord.ToGraphics(parte.Position, Const.Zoom), parte.Rotation);
+                        if ((Math.Abs(partRelativeMousePos.X) <= Coord.ToGraphics(parte.BodySize, Const.Zoom).X) && (Math.Abs(partRelativeMousePos.Y) <= Coord.ToGraphics(parte.BodySize, Const.Zoom).Y))
+                            selectedPart = parte;
+                    }
+                if (selectedPart != null) //se è stata selezionata una parte tenta di calcolare partRelativeMouseProjection
+                {
+                    //coordinate del mouse rispetto al sistema di riferimento della parte
+                    partRelativeMouseProjection = Coord.InvTranslateAndRotate(mousePos, Coord.ToGraphics(selectedPart.Position, Const.Zoom), selectedPart.Rotation);
+                    //passa in coordinate fisiche (per evitare di effettuare molte più conversioni in coordinate grafiche
+                    partRelativeMouseProjection = Coord.ToPhysics(partRelativeMouseProjection, Const.Zoom);
+                    //verifica se il mouse è in corrispondenza di uno dei lati della parte e, in caso affermativo, aggiorna il vettore
+                    //con la proiezione della posizione del mouse sul bordo della creatura (altrimenti non la modifica)
+                    if ((partRelativeMouseProjection.X < 0) && (Math.Abs(partRelativeMouseProjection.Y) <= (selectedPart.BodySize.Y / 2)))
+                    {
+                        partRelativeMouseProjection.X = -selectedPart.BodySize.X / 2;
+                        onSide = true;
+                        projectionSide = Side.Left;
+                    }
+                    else if ((partRelativeMouseProjection.X >= 0) && (Math.Abs(partRelativeMouseProjection.Y) <= (selectedPart.BodySize.Y / 2)))
+                    {
+                        partRelativeMouseProjection.X = selectedPart.BodySize.X / 2;
+                        onSide = true;
+                        projectionSide = Side.Right;
+                    }
+                    else if ((partRelativeMouseProjection.Y < 0) && (Math.Abs(partRelativeMouseProjection.X) <= (selectedPart.BodySize.X / 2)))
+                    {
+                        partRelativeMouseProjection.Y = -selectedPart.BodySize.Y / 2;
+                        onSide = true;
+                        projectionSide = Side.Top;
+                    }
+                    else if ((partRelativeMouseProjection.Y >= 0) && (Math.Abs(partRelativeMouseProjection.X) <= (selectedPart.BodySize.X / 2)))
+                    {
+                        partRelativeMouseProjection.Y = selectedPart.BodySize.Y / 2;
+                        onSide = true;
+                        projectionSide = Side.Bottom;
+                    }
+                    else
+                        onSide = false;
+                    //torna in coordinate grafiche
+                    partRelativeMouseProjection = Coord.ToGraphics(partRelativeMouseProjection, Const.Zoom);
+                }
+                //verifica se il mouse si trova o meno all'interno di una parte e aggiorna noCollision
+                noCollision = true;
                 foreach (FParte parte in partList)
                 {
-                    Vector2 partRelativeMousePos = Coord.InvTranslateAndRotate(mousePos, Coord.ToGraphics(parte.Position, zoom), parte.Rotation);
-                    if ((Math.Abs(partRelativeMousePos.X) <= Coord.ToGraphics(parte.BodySize, zoom).X) && (Math.Abs(partRelativeMousePos.Y) <= Coord.ToGraphics(parte.BodySize, zoom).Y))
-                        selectedPart = parte;
+                    Vector2 partRelativeMousePos = Coord.InvTranslateAndRotate(mousePos, Coord.ToGraphics(parte.Position, Const.Zoom), parte.Rotation);
+                    if ((Math.Abs(partRelativeMousePos.X) <= (Coord.ToGraphics(parte.BodySize, Const.Zoom).X / 2)) && (Math.Abs(partRelativeMousePos.Y) <= (Coord.ToGraphics(parte.BodySize, Const.Zoom).Y) / 2))
+                    {
+                        noCollision = false;
+                        break;
+                    }
                 }
-            if (selectedPart != null) //se è stata selezionata una parte tenta di calcolare partRelativeMouseProjection
-            {
-                //coordinate del mouse rispetto al sistema di riferimento della parte
-                partRelativeMouseProjection = Coord.InvTranslateAndRotate(mousePos, Coord.ToGraphics(selectedPart.Position, zoom), selectedPart.Rotation);
-                //passa in coordinate fisiche (per evitare di effettuare molte più conversioni in coordinate grafiche
-                partRelativeMouseProjection = Coord.ToPhysics(partRelativeMouseProjection, zoom);
-                //verifica se il mouse è in corrispondenza di uno dei lati della parte e, in caso affermativo, aggiorna il vettore
-                //con la proiezione della posizione del mouse sul bordo della creatura (altrimenti non la modifica)
-                if ((partRelativeMouseProjection.X < 0) && (Math.Abs(partRelativeMouseProjection.Y) <= (selectedPart.BodySize.Y / 2)))
-                {
-                    partRelativeMouseProjection.X = -selectedPart.BodySize.X / 2;
-                    onSide = true;
-                    projectionSide = Side.Left;
-                }
-                else if ((partRelativeMouseProjection.X >= 0) && (Math.Abs(partRelativeMouseProjection.Y) <= (selectedPart.BodySize.Y / 2)))
-                {
-                    partRelativeMouseProjection.X = selectedPart.BodySize.X / 2;
-                    onSide = true;
-                    projectionSide = Side.Right;
-                }
-                else if ((partRelativeMouseProjection.Y < 0) && (Math.Abs(partRelativeMouseProjection.X) <= (selectedPart.BodySize.X / 2)))
-                {
-                    partRelativeMouseProjection.Y = -selectedPart.BodySize.Y / 2;
-                    onSide = true;
-                    projectionSide = Side.Top;
-                }
-                else if ((partRelativeMouseProjection.Y >= 0) && (Math.Abs(partRelativeMouseProjection.X) <= (selectedPart.BodySize.X / 2)))
-                {
-                    partRelativeMouseProjection.Y = selectedPart.BodySize.Y / 2;
-                    onSide = true;
-                    projectionSide = Side.Bottom;
-                }
-                else
-                    onSide = false;
-                //torna in coordinate grafiche
-                partRelativeMouseProjection = Coord.ToGraphics(partRelativeMouseProjection, zoom);
-            }
-            //verifica se il mouse si trova o meno all'interno di una parte e aggiorna noCollision
-            noCollision = true;
-            foreach (FParte parte in partList)
-            {
-                Vector2 partRelativeMousePos = Coord.InvTranslateAndRotate(mousePos, Coord.ToGraphics(parte.Position, zoom), parte.Rotation);
-                if ((Math.Abs(partRelativeMousePos.X) <= (Coord.ToGraphics(parte.BodySize, zoom).X / 2)) && (Math.Abs(partRelativeMousePos.Y) <= (Coord.ToGraphics(parte.BodySize, zoom).Y) / 2))
-                {
-                    noCollision = false;
-                    break;
-                }
-            }
-            #endregion
+                #endregion
 
-            //switch (list.SelectedIndex)
-            switch (comando)
-            {
-                case 0: //creazione blocchi
-                    #region Creazione blocchi
-                    if (kCurrentState.IsKeyDown(Keys.Space) && kPreviousState.IsKeyUp(Keys.Space) && (mCurrentState.Y <= (screenHeigh-controlsAreaHeigh)))
-                    {
-                        //creazione di un blocco inizialmente fermo nella posizione attuale del mouse, premendo spazio
-                        Fixture newBlock = FixtureFactory.CreateRectangle(world, rectangleSize.X, rectangleSize.Y, 0.01f, Coord.ToPhysics(mousePos, zoom));
-                        newBlock.Body.BodyType = BodyType.Dynamic;
-                        newBlock.Restitution = 0.4f;
-                        newBlock.Friction = 0.3f;
-                        blocks.Add(newBlock);
-                    }
-                    if ((mCurrentState.LeftButton == ButtonState.Pressed) && (mPreviousState.LeftButton == ButtonState.Released) && (mCurrentState.Y <= (screenHeigh - controlsAreaHeigh)))
-                    {   
-                        //punto di rilascio del blocco con velocità iniziale non nulla e punto d'inizio del vettore immaginario che ne definisce il vettore velocità
-                        start = Coord.ToPhysics(mousePos, zoom);
-                        started = true;
-                    }
-                    else if ((mCurrentState.LeftButton == ButtonState.Released) && (mPreviousState.LeftButton == ButtonState.Pressed) && started)
-                    {
-                        //ho rilasciato il mouse sx -> crea il blocco
-                        started = false;
-                        end = Coord.ToPhysics(mousePos, zoom);
-                        Fixture newBlock = FixtureFactory.CreateRectangle(world, rectangleSize.X, rectangleSize.Y, Const.PartDensity, new Vector2(start.X, start.Y));
-                        newBlock.Body.BodyType = BodyType.Dynamic;
-                        newBlock.Restitution = 0.4f;
-                        newBlock.Friction = 0.3f;
-                        newBlock.Body.IsBullet = true;
-                        newBlock.Body.LinearVelocity = (end - start);
-                        blocks.Add(newBlock);
-                    }
-                    if ((mCurrentState.RightButton == ButtonState.Released) && (mPreviousState.RightButton == ButtonState.Pressed) && (mCurrentState.Y < (screenHeigh - controlsAreaHeigh)))
-                        createExplosion(mousePos / zoom, blocks);
-                    #endregion
-                    break;
-                case 1: //manipolazione creatura
-                    #region Creazione nuova parte
-                    if ((mCurrentState.LeftButton == ButtonState.Pressed) && (mCurrentState.Y < (screenHeigh - controlsAreaHeigh)))
-                        if ((mPreviousState.LeftButton == ButtonState.Released) && noCollision)
+                //switch (list.SelectedIndex)
+                switch (comando)
+                {
+                    case 0: //creazione blocchi
+                        #region Creazione blocchi
+                        if (kCurrentState.IsKeyDown(Keys.Space) && kPreviousState.IsKeyUp(Keys.Space) && (mCurrentState.Y <= (Const.ScreenHeigh - Const.ControlsAreaHeigh)))
                         {
-                            //ho appena premuto il tasto sx del mouse e non sono in area controlli
-                            //-> se il mouse non si trova all'interno di una parte inizia a disegnarne una nuova
-                            partWhileDrawed = new Rectangle(Convert.ToInt32(mousePos.X), Convert.ToInt32(mousePos.Y), 1, 1);
-                            drawingPart = true;
+                            //creazione di un blocco inizialmente fermo nella posizione attuale del mouse, premendo spazio
+                            Fixture newBlock = FixtureFactory.CreateRectangle(world, rectangleSize.X, rectangleSize.Y, 0.01f, Coord.ToPhysics(mousePos, Const.Zoom));
+                            newBlock.Body.BodyType = BodyType.Dynamic;
+                            newBlock.Restitution = 0.4f;
+                            newBlock.Friction = 0.3f;
+                            blocks.Add(newBlock);
                         }
-                        else
+                        if ((mCurrentState.LeftButton == ButtonState.Pressed) && (mPreviousState.LeftButton == ButtonState.Released) && (mCurrentState.Y <= (Const.ScreenHeigh - Const.ControlsAreaHeigh)))
                         {
-                            //sto tenendo premuto il tasto sx -> aggiorna partWhileDrawed
-                            if (mousePos.X > partWhileDrawed.X)
-                                partWhileDrawed.Width = Convert.ToInt32(mousePos.X - partWhileDrawed.X);
+                            //punto di rilascio del blocco con velocità iniziale non nulla e punto d'inizio del vettore immaginario che ne definisce il vettore velocità
+                            start = Coord.ToPhysics(mousePos, Const.Zoom);
+                            started = true;
+                        }
+                        else if ((mCurrentState.LeftButton == ButtonState.Released) && (mPreviousState.LeftButton == ButtonState.Pressed) && started)
+                        {
+                            //ho rilasciato il mouse sx -> crea il blocco
+                            started = false;
+                            end = Coord.ToPhysics(mousePos, Const.Zoom);
+                            Fixture newBlock = FixtureFactory.CreateRectangle(world, rectangleSize.X, rectangleSize.Y, Const.PartDensity, new Vector2(start.X, start.Y));
+                            newBlock.Body.BodyType = BodyType.Dynamic;
+                            newBlock.Restitution = 0.4f;
+                            newBlock.Friction = 0.3f;
+                            newBlock.Body.IsBullet = true;
+                            newBlock.Body.LinearVelocity = (end - start);
+                            blocks.Add(newBlock);
+                        }
+                        if ((mCurrentState.RightButton == ButtonState.Released) && (mPreviousState.RightButton == ButtonState.Pressed) && (mCurrentState.Y < (Const.ScreenHeigh - Const.ControlsAreaHeigh)))
+                            createExplosion(mousePos / Const.Zoom, blocks);
+                        #endregion
+                        break;
+                    case 1: //manipolazione creatura
+                        #region Creazione nuova parte
+                        if ((mCurrentState.LeftButton == ButtonState.Pressed) && (mCurrentState.Y < (Const.ScreenHeigh - Const.ControlsAreaHeigh)))
+                            if ((mPreviousState.LeftButton == ButtonState.Released) && noCollision)
+                            {
+                                //ho appena premuto il tasto sx del mouse e non sono in area controlli
+                                //-> se il mouse non si trova all'interno di una parte inizia a disegnarne una nuova
+                                partWhileDrawed = new Rectangle(Convert.ToInt32(mousePos.X), Convert.ToInt32(mousePos.Y), 1, 1);
+                                drawingPart = true;
+                            }
                             else
                             {
-                                int temp = partWhileDrawed.X;
-                                partWhileDrawed.X = Convert.ToInt32(mousePos.X);
-                                partWhileDrawed.Width = Convert.ToInt32(mousePos.X) - temp;
+                                //sto tenendo premuto il tasto sx -> aggiorna partWhileDrawed
+                                if (mousePos.X > partWhileDrawed.X)
+                                    partWhileDrawed.Width = Convert.ToInt32(mousePos.X - partWhileDrawed.X);
+                                else
+                                {
+                                    int temp = partWhileDrawed.X;
+                                    partWhileDrawed.X = Convert.ToInt32(mousePos.X);
+                                    partWhileDrawed.Width = Convert.ToInt32(mousePos.X) - temp;
+                                }
+                                if (mousePos.Y > partWhileDrawed.Y)
+                                    partWhileDrawed.Height = Convert.ToInt32(mousePos.Y) - partWhileDrawed.Y;
+                                else
+                                {
+                                    int temp = partWhileDrawed.Y;
+                                    partWhileDrawed.Y = Convert.ToInt32(mousePos.Y);
+                                    partWhileDrawed.Height = Convert.ToInt32(mousePos.Y) - temp;
+                                }
                             }
-                            if (mousePos.Y > partWhileDrawed.Y)
-                                partWhileDrawed.Height = Convert.ToInt32(mousePos.Y) - partWhileDrawed.Y;
-                            else
+                        else if (drawingPart) //else di if(mCurrentState.LeftButton == Pressed) ecc.
+                        {
+                            //ho appena rilasciato il tasto sx e stavo creando una nuova parte -> la crea
+                            drawingPart = false;
+                            Vector2 partSize = Coord.ToPhysics(new Vector2(partWhileDrawed.Width, partWhileDrawed.Height), Const.Zoom);
+                            Vector2 partPosition = Coord.ToPhysics(new Vector2(partWhileDrawed.Center.X, partWhileDrawed.Center.Y), Const.Zoom);
+                            if ((partSize.X >= 0.05f) && (partSize.Y >= 0.05f)) //crea la parte solo se è sufficientemente grande, per evitare di causare blocchi del programma
                             {
-                                int temp = partWhileDrawed.Y;
-                                partWhileDrawed.Y = Convert.ToInt32(mousePos.Y);
-                                partWhileDrawed.Height = Convert.ToInt32(mousePos.Y) - temp;
+                                FParte newPart = new FParte(partSize, partPosition, Const.PartDensity, world, Color.Blue, Color.White);
+                                if (moving)
+                                    newPart.BodyType = BodyType.Dynamic;
+                                else
+                                    newPart.BodyType = BodyType.Static;
+                                partList.Add(newPart);
                             }
                         }
-                    else if (drawingPart) //else di if(mCurrentState.LeftButton == Pressed) ecc.
-                    {
-                        //ho appena rilasciato il tasto sx e stavo creando una nuova parte -> la crea
-                        drawingPart = false;
-                        Vector2 partSize = Coord.ToPhysics(new Vector2(partWhileDrawed.Width, partWhileDrawed.Height), zoom);
-                        Vector2 partPosition = Coord.ToPhysics(new Vector2(partWhileDrawed.Center.X, partWhileDrawed.Center.Y), zoom);
-                        if ((partSize.X >= 0.05f) && (partSize.Y >= 0.05f)) //crea la parte solo se è sufficientemente grande, per evitare di causare blocchi del programma
-                        {
-                            FParte newPart = new FParte(partSize, partPosition, Const.PartDensity, world, Color.Blue, Color.White);
-                            if (moving)
-                                newPart.BodyType = BodyType.Dynamic;
-                            else
-                                newPart.BodyType = BodyType.Static;
-                            partList.Add(newPart);
-                        }
-                    }
-                    #endregion  
+                        #endregion
 
-                    #region Creazione giunti
-                    if (!pendingJoint) //se devo ancora iniziare a creare il giunto
-                    {
-                        if ((mCurrentState.RightButton == ButtonState.Pressed) && (mCurrentState.Y <= (screenHeigh - controlsAreaHeigh)) && !moving)
+                        #region Creazione giunti
+                        if (!pendingJoint) //se devo ancora iniziare a creare il giunto
                         {
-                            if ((mPreviousState.RightButton == ButtonState.Released) && onSide && !creatingJoint)
-                            {   //ho appena cliccato col tasto dx e sono correttamente aggangiato sul bordo della parte selezionata
-                                //-> inizio a creare il giunto
-                                creatingJoint = true;
-                                part1 = selectedPart;
-                                part1JointPos = new Vector2(partRelativeMouseProjection.X, partRelativeMouseProjection.Y);
-                                //(in coordinate grafiche e riferito alla posizione di part1)
-                            }
-                            else if (noCollision && creatingJoint)
+                            if ((mCurrentState.RightButton == ButtonState.Pressed) && (mCurrentState.Y <= (Const.ScreenHeigh - Const.ControlsAreaHeigh)) && !moving)
                             {
-                                //il mouse è ancora premuto, quindi sto trascinando per determinare la dimensione del giunto
-                                Vector2 relMousePos = Coord.InvTranslateAndRotate(mousePos, Coord.ToGraphics(part1.Position, zoom), part1.Rotation);
-                                Vector2 relMousePosPhysics = Coord.ToPhysics(relMousePos, zoom);
-                                Vector2 part1JointPosPhysics = Coord.ToPhysics(part1JointPos, zoom);
-                                if ((projectionSide == Side.Right) && (relMousePosPhysics.X > (part1.BodySize.X / 2)))
-                                {   //bordo destro della parte
-                                    jointRadius = relMousePos.X - part1JointPos.X;
-                                    if (jointRadius < 0.05f) //per evitare dimensioni nulle o negative
-                                        jointRadius = 0.05f;
-                                    //centro del giunto in coordinate grafiche e assolute
-                                    jointCenter = Coord.TranslateAndRotate(part1JointPos + new Vector2(jointRadius, 0), Coord.ToGraphics(part1.Position, zoom), part1.Rotation);  
+                                if ((mPreviousState.RightButton == ButtonState.Released) && onSide && !creatingJoint)
+                                {   //ho appena cliccato col tasto dx e sono correttamente aggangiato sul bordo della parte selezionata
+                                    //-> inizio a creare il giunto
+                                    creatingJoint = true;
+                                    part1 = selectedPart;
+                                    part1JointPos = new Vector2(partRelativeMouseProjection.X, partRelativeMouseProjection.Y);
+                                    //(in coordinate grafiche e riferito alla posizione di part1)
                                 }
-                                else if ((projectionSide == Side.Left) && (relMousePosPhysics.X < -(part1.BodySize.X / 2)))
-                                {   //bordo sinistro della parte
-                                    jointRadius = part1JointPos.X - relMousePos.X;
-                                    if (jointRadius < 0.05f)
-                                        jointRadius = 0.05f;
-                                    jointCenter = Coord.TranslateAndRotate(part1JointPos - new Vector2(jointRadius, 0), Coord.ToGraphics(part1.Position, zoom), part1.Rotation);
+                                else if (noCollision && creatingJoint)
+                                {
+                                    //il mouse è ancora premuto, quindi sto trascinando per determinare la dimensione del giunto
+                                    Vector2 relMousePos = Coord.InvTranslateAndRotate(mousePos, Coord.ToGraphics(part1.Position, Const.Zoom), part1.Rotation);
+                                    Vector2 relMousePosPhysics = Coord.ToPhysics(relMousePos, Const.Zoom);
+                                    Vector2 part1JointPosPhysics = Coord.ToPhysics(part1JointPos, Const.Zoom);
+                                    if ((projectionSide == Side.Right) && (relMousePosPhysics.X > (part1.BodySize.X / 2)))
+                                    {   //bordo destro della parte
+                                        jointRadius = relMousePos.X - part1JointPos.X;
+                                        if (jointRadius < 0.05f) //per evitare dimensioni nulle o negative
+                                            jointRadius = 0.05f;
+                                        //centro del giunto in coordinate grafiche e assolute
+                                        jointCenter = Coord.TranslateAndRotate(part1JointPos + new Vector2(jointRadius, 0), Coord.ToGraphics(part1.Position, Const.Zoom), part1.Rotation);
+                                    }
+                                    else if ((projectionSide == Side.Left) && (relMousePosPhysics.X < -(part1.BodySize.X / 2)))
+                                    {   //bordo sinistro della parte
+                                        jointRadius = part1JointPos.X - relMousePos.X;
+                                        if (jointRadius < 0.05f)
+                                            jointRadius = 0.05f;
+                                        jointCenter = Coord.TranslateAndRotate(part1JointPos - new Vector2(jointRadius, 0), Coord.ToGraphics(part1.Position, Const.Zoom), part1.Rotation);
+                                    }
+                                    else if ((projectionSide == Side.Bottom) && (relMousePosPhysics.Y > (part1.BodySize.Y / 2)))
+                                    {   //bordo inferiore della parte
+                                        jointRadius = relMousePos.Y - part1JointPos.Y;
+                                        if (jointRadius < 0.05f)
+                                            jointRadius = 0.05f;
+                                        jointCenter = Coord.TranslateAndRotate(part1JointPos + new Vector2(0, jointRadius), Coord.ToGraphics(part1.Position, Const.Zoom), part1.Rotation);
+                                    }
+                                    else if ((projectionSide == Side.Top) && (relMousePosPhysics.Y < -(part1.BodySize.Y / 2)))
+                                    {   //bordo superiore della parte
+                                        jointRadius = part1JointPos.Y - relMousePos.Y;
+                                        if (jointRadius < 0.05f)
+                                            jointRadius = 0.05f;
+                                        jointCenter = Coord.TranslateAndRotate(part1JointPos - new Vector2(0, jointRadius), Coord.ToGraphics(part1.Position, Const.Zoom), part1.Rotation);
+                                    }
                                 }
-                                else if ((projectionSide == Side.Bottom) && (relMousePosPhysics.Y > (part1.BodySize.Y / 2)))
-                                {   //bordo inferiore della parte
-                                    jointRadius = relMousePos.Y - part1JointPos.Y;
-                                    if (jointRadius < 0.05f)
-                                        jointRadius = 0.05f;
-                                    jointCenter = Coord.TranslateAndRotate(part1JointPos + new Vector2(0, jointRadius), Coord.ToGraphics(part1.Position, zoom), part1.Rotation);
-                                }
-                                else if ((projectionSide == Side.Top) && (relMousePosPhysics.Y < -(part1.BodySize.Y / 2)))
-                                {   //bordo superiore della parte
-                                    jointRadius = part1JointPos.Y - relMousePos.Y;
-                                    if (jointRadius < 0.05f)
-                                        jointRadius = 0.05f;
-                                    jointCenter = Coord.TranslateAndRotate(part1JointPos - new Vector2(0, jointRadius), Coord.ToGraphics(part1.Position, zoom), part1.Rotation);
-                                }
-                            } 
-                        }
-                        else if (creatingJoint)
+                            }
+                            else if (creatingJoint)
+                            {
+                                //ho appena rilasciato il tasto dx -> il giunto ha le dimensioni definitive
+                                creatingJoint = false;
+                                pendingJoint = true;
+                            }
+                        }   //-> pendingJoint è true -> il giunto è già stato creato, occorre scegliere la seconda parte
+                        else if ((mCurrentState.RightButton == ButtonState.Pressed) && (mCurrentState.Y <= (Const.ScreenHeigh - Const.ControlsAreaHeigh)) && !moving && (mPreviousState.RightButton == ButtonState.Released) && onSide && (selectedPart != part1))
                         {
-                            //ho appena rilasciato il tasto dx -> il giunto ha le dimensioni definitive
-                            creatingJoint = false;
-                            pendingJoint = true;
+                            Vector2 part2JointPosPhysics = Coord.ToPhysics(partRelativeMouseProjection, Const.Zoom);
+                            Vector2 part1JointPosPhysics = Coord.ToPhysics(part1JointPos, Const.Zoom);
+                            selectedPart.Join(part1, part2JointPosPhysics, part1JointPosPhysics, Color.Aqua, jointRadius / Const.Zoom);
+                            pendingJoint = false;
                         }
-                    }   //-> pendingJoint è true -> il giunto è già stato creato, occorre scegliere la seconda parte
-                    else if ((mCurrentState.RightButton == ButtonState.Pressed) && (mCurrentState.Y <= (screenHeigh - controlsAreaHeigh)) && !moving && (mPreviousState.RightButton == ButtonState.Released) && onSide && (selectedPart != part1))
-                    {
-                        Vector2 part2JointPosPhysics = Coord.ToPhysics(partRelativeMouseProjection, zoom);
-                        Vector2 part1JointPosPhysics = Coord.ToPhysics(part1JointPos, zoom);
-                        selectedPart.Join(part1, part2JointPosPhysics, part1JointPosPhysics, Color.Aqua, jointRadius / zoom);
-                        pendingJoint = false;
-                    }
-                    #endregion
-                    break;
-            }
+                        #endregion
+                        break;
+                }
 
-            //applica le forze ai muscoli della parte selezionata, se possiede un Actuator (cioè se è una parte figlia)
-            if ((selectedPart != null) && moving && (selectedPart.PartActuator != null))
-            {
-                if (kCurrentState.IsKeyDown(Keys.M))
-                    selectedPart.PartActuator.ApplyForce(5f);
-                else if (kCurrentState.IsKeyDown(Keys.N))
-                    selectedPart.PartActuator.ApplyForce(-5f);
+                //applica le forze ai muscoli della parte selezionata, se possiede un Actuator (cioè se è una parte figlia)
+                if ((selectedPart != null) && moving && (selectedPart.PartActuator != null))
+                {
+                    if (muscoli)
+                        selectedPart.PartMotionSystem = MotionSystem.Actuator;
+                    else
+                        selectedPart.PartMotionSystem = MotionSystem.Motor;
+                    if (kCurrentState.IsKeyDown(Keys.M))
+                        selectedPart.ApplyMotion(1.0f);
+                    else if (kCurrentState.IsKeyDown(Keys.N))
+                        selectedPart.ApplyMotion(-1.0f);
+                    else
+                        selectedPart.ApplyMotion(0.0f);
+                }
             }
 
             world.Step((float)gameTime.ElapsedGameTime.TotalMilliseconds / 1000);
@@ -451,17 +463,17 @@ namespace ProveMotoreFisico
             spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, camera.OttieniTrasformazione(GraphicsDevice));
 
             //disegna il pavimento
-            spriteBatch.Draw(rectTexture, zoom*floor.Body.Position, new Rectangle(0,0,zoom*(int)floorSize.X, zoom*(int)floorSize.Y), Color.Black, floor.Body.Rotation, (floorSize/2)*zoom, 1, SpriteEffects.None, 0);
+            spriteBatch.Draw(rectTexture, Const.Zoom*floor.Body.Position, new Rectangle(0,0,Const.Zoom*(int)floorSize.X, Const.Zoom*(int)floorSize.Y), Color.Black, floor.Body.Rotation, (floorSize/2)*Const.Zoom, 1, SpriteEffects.None, 0);
             //disegna i blocchi
             foreach (Fixture fixture in blocks)
-                spriteBatch.Draw(rectTexture, zoom * fixture.Body.Position, new Rectangle(0, 0, zoom * (int)rectangleSize.X, zoom * (int)rectangleSize.Y), Color.White, fixture.Body.Rotation, (rectangleSize / 2) * zoom, 1, SpriteEffects.None, 0);
+                spriteBatch.Draw(rectTexture, Const.Zoom * fixture.Body.Position, new Rectangle(0, 0, Const.Zoom * (int)rectangleSize.X, Const.Zoom * (int)rectangleSize.Y), Color.White, fixture.Body.Rotation, (rectangleSize / 2) * Const.Zoom, 1, SpriteEffects.None, 0);
             //disegna le parti
             foreach (FParte part in partList)
             {
                 if (part == selectedPart)
-                    part.Draw(spriteBatch, rectTexture, circTexture, zoom, Color.Yellow, Color.Yellow);
+                    part.Draw(spriteBatch, rectTexture, circTexture, Const.Zoom, Color.Yellow, Color.Yellow);
                 else
-                    part.Draw(spriteBatch, rectTexture, circTexture, zoom);
+                    part.Draw(spriteBatch, rectTexture, circTexture, Const.Zoom);
             }
             if (drawingPart)
                 spriteBatch.Draw(rectTexture, partWhileDrawed, Color.White);
@@ -471,25 +483,30 @@ namespace ProveMotoreFisico
             //disegna il cursore sul bordo della parte selezionata
             if ((partList.Count >= 1) && (selectedPart != null))
             {
-                spriteBatch.Draw(rectTexture, Coord.TranslateAndRotate(partRelativeMouseProjection, Coord.ToGraphics(selectedPart.Position, zoom), selectedPart.Rotation), new Rectangle(0, 0, 4, 4), Color.Red, 0f, new Vector2(2, 2), 1f, SpriteEffects.None, 0);
+                spriteBatch.Draw(rectTexture, Coord.TranslateAndRotate(partRelativeMouseProjection, Coord.ToGraphics(selectedPart.Position, Const.Zoom), selectedPart.Rotation), new Rectangle(0, 0, 4, 4), Color.Red, 0f, new Vector2(2, 2), 1f, SpriteEffects.None, 0);
+                if(selectedPart.Joint != null)
+                    if(muscoli)
+                        spriteBatch.DrawString(arial, "MaxForcePerAreaUnit: " + selectedPart.PartActuator.MaxForce.ToString(), new Vector2(0, 40), Color.White);
+                    else
+                        spriteBatch.DrawString(arial, "MotorTorquePerAreaUnit: " + selectedPart.Joint.MotorTorque.ToString(), new Vector2(0, 40), Color.White);
             }
             //testo di debug
             spriteBatch.DrawString(arial, "MousePos: " + mousePos.X.ToString() + "," + mousePos.Y.ToString(), Vector2.Zero, Color.Black);
             spriteBatch.DrawString(arial, "Posizione non trasformata: " + mCurrentState.X.ToString() + "," + mCurrentState.Y.ToString(), new Vector2(0, 20), Color.White);
-            spriteBatch.DrawString(arial, "MaxForce: " + Const.MaxForce.ToString(), new Vector2(0, 40), Color.White);
+            
             spriteBatch.End();
             
 
             //evidenzia l'area dei controlli
             spriteBatch.Begin();
-            spriteBatch.Draw(rectTexture, new Vector2(0, screenHeigh - controlsAreaHeigh), new Rectangle(0, 0, screenWidth, controlsAreaHeigh), Color.Gray, 0.0f, Vector2.Zero, 1.0f, SpriteEffects.None, 0);
+            spriteBatch.Draw(rectTexture, new Vector2(0, Const.ScreenHeigh - Const.ControlsAreaHeigh), new Rectangle(0, 0, Const.ScreenWidth, Const.ControlsAreaHeigh), Color.Gray, 0.0f, Vector2.Zero, 1.0f, SpriteEffects.None, 0);
             spriteBatch.End();
 
             base.Draw(gameTime);
         }
 
 
-
+        #region Generazione Texture
         /// <summary>
         /// Genera una texture rettangolare
         /// </summary>
@@ -533,6 +550,7 @@ namespace ProveMotoreFisico
             texture.SetData(colorArray);
             return texture;
         }
+        #endregion
 
         private void createExplosion(Vector2 position, List<Fixture> blocks)
         {
@@ -546,10 +564,11 @@ namespace ProveMotoreFisico
         }
 
 
-        private void server()
+        TcpListener server = null;
+        NetworkStream stream = null;
+        TcpClient client = null;
+        private void ServerMethod()
         {
-            
-            TcpListener server = null;
             Int32 port = 13000;
             IPAddress localAddr = IPAddress.Parse("127.0.0.1");
             bool fine = false;
@@ -561,9 +580,9 @@ namespace ProveMotoreFisico
             
             //Console.Write("In attesa di connessioni... ");
                        
-            TcpClient client = server.AcceptTcpClient();
+            client = server.AcceptTcpClient();
             //Console.WriteLine("Connesso!");
-            NetworkStream stream = client.GetStream();
+            stream = client.GetStream();
 
             int i;
             
@@ -586,13 +605,25 @@ namespace ProveMotoreFisico
                         comando = 1;
                         data = "Modalita disegno attivata";
                     }
+                    else if (data == "help")
+                    {
+                        data = "\nb -> modalita' cubetti\nd -> modalita' disegno\na -> abilita muscoli\nm -> abilita motori\nquit -> chiudi client";
+                    }
+                    else if (data == "a")
+                    {
+                        muscoli = true;
+                        data = "Modalita' di movimento: muscoli";
+                    }
+                    else if (data == "m")
+                    {
+                        muscoli = false;
+                        data = "Modalita' di movimento: motore";
+                    }
                     else
                         data = data.ToUpper();
                     
                     byte[] msg = System.Text.Encoding.ASCII.GetBytes(data);
                     stream.Write(msg, 0, msg.Length);
-                    
-
                 }
             
             // Shutdown and end connection

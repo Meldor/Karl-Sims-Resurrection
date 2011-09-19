@@ -47,6 +47,13 @@ namespace ProveMotoreFisico
             }
         }
         public Vector2 BodySize;
+        public float BodyArea
+        {
+            get
+            {
+                return BodySize.X * BodySize.Y;
+            }
+        }
         Vector2 JointOffset;
         public Vector2 JointSideOffset
         {
@@ -65,11 +72,12 @@ namespace ProveMotoreFisico
         float JointRadius, Density;
         Color BodyColor, JointColor;
         World World;
-        Joint Joint;
+        public MotionSystem PartMotionSystem;
+        public RevoluteJoint Joint;
         public Actuator PartActuator;
         public Side ConnectionSide;
 
-        #region Costruttori
+        #region Costruttori e inizializzazione
 
         /// <summary>
         /// Costruttore di FParte
@@ -80,16 +88,7 @@ namespace ProveMotoreFisico
         /// <param name="world">World in cui inserire la parte</param>
         public FParte(Vector2 bodySize, Vector2 bodyPosition, float density, World world)
         {
-            Body = BodyFactory.CreateBody(world, bodyPosition);
-            Body.BodyType = BodyType.Dynamic;
-            BodyFixture = FixtureFactory.CreateRectangle(bodySize.X, bodySize.Y, density, Vector2.Zero, Body);
-            BodySize = bodySize;
-            BodyColor = Color.Black;
-            JointColor = Color.Black;
-            World = world;
-            Density = density;
-            Joint = null;
-            PartActuator = null;
+            Initialize(bodySize, bodyPosition, density, world, Color.Black, Color.Black);
         }
 
         /// <summary>
@@ -103,6 +102,11 @@ namespace ProveMotoreFisico
         /// <param name="jointColor">Colore del giunto</param>
         public FParte(Vector2 bodySize, Vector2 bodyPosition, float density, World world, Color bodyColor, Color jointColor)
         {
+            Initialize(bodySize, bodyPosition, density, world, bodyColor, jointColor);
+        }
+
+        private void Initialize(Vector2 bodySize, Vector2 bodyPosition, float density, World world, Color bodyColor, Color jointColor)
+        {
             Body = BodyFactory.CreateBody(world, bodyPosition);
             Body.BodyType = BodyType.Dynamic;
             BodyFixture = FixtureFactory.CreateRectangle(bodySize.X, bodySize.Y, density, Vector2.Zero, Body);
@@ -113,6 +117,7 @@ namespace ProveMotoreFisico
             Density = density;
             Joint = null;
             PartActuator = null;
+            PartMotionSystem = MotionSystem.Actuator;
         }
         
         #endregion
@@ -157,6 +162,8 @@ namespace ProveMotoreFisico
             Body.Rotation = otherPart.Body.Rotation;
             Joint = JointFactory.CreateRevoluteJoint(World, otherPart.Body, this.Body, thisPartPosition);
             JointOffset = new Vector2(thisPartPosition.X, thisPartPosition.Y);
+            Joint.MotorEnabled = true;
+            Joint.MaxMotorTorque = Const.MaxMotorTorquePerAreaUnit * this.BodySize.X * this.BodySize.Y;
 
             //determina la dimensione del giunto in base alla posizione rispetto al centro del corpo e alla dimensione del corpo stesso
             if ((thisPartPosition.X > BodySize.X / 2) && (Math.Abs(thisPartPosition.Y) <= BodySize.Y / 2))
@@ -186,7 +193,7 @@ namespace ProveMotoreFisico
             if(JointColor != null)
                 JointColor = jointColor;
             Joint.CollideConnected = true;      //abilita la collisione dei due body connessi dal giunto
-            PartActuator = new Actuator(this, otherPart, Const.MaxForce);
+            PartActuator = new Actuator(this, otherPart, Const.MaxForcePerAreaUnit * BodyArea);
             return true;
         }
 
@@ -230,6 +237,8 @@ namespace ProveMotoreFisico
             if (Joint != null)
                 World.RemoveJoint(Joint);
             Joint = JointFactory.CreateRevoluteJoint(World, otherPart.Body, this.Body, thisPartSidePosition + jointOffset/2);
+            Joint.MotorEnabled = true;
+            Joint.MaxMotorTorque = Const.MaxMotorTorquePerAreaUnit * this.BodySize.X * this.BodySize.Y;
 
             JointRadius = jointRadius;
             JointFixture = FixtureFactory.CreateCircle(JointRadius, Density, Body, thisPartSidePosition + jointOffset/2);
@@ -237,26 +246,44 @@ namespace ProveMotoreFisico
                 JointColor = jointColor;
             JointOffset = thisPartSidePosition + jointOffset / 2;
             Joint.CollideConnected = true;
-            PartActuator = new Actuator(this, otherPart, Const.MaxForce);
+            PartActuator = new Actuator(this, otherPart, Const.MaxForcePerAreaUnit * BodyArea);
             return true;
 
         }
         #endregion
 
-        public void ApplyTorque(float torque)
+        #region Movimento
+        public void ApplyMotion(float motionIntensity)
         {
-            Body.ApplyTorque(torque);
-            return;
+            if (Joint != null)
+            {
+                if (PartMotionSystem == MotionSystem.Actuator)
+                    PartActuator.ApplyForce(motionIntensity);
+                else
+                    SetMotorSpeed(Const.MaxSpeedPerLenghtUnit * JointRadius * motionIntensity);
+            }
         }
 
-        public void ApplyForce(Vector2 force, Vector2 worldPoint)
+        internal void ApplyForce(Vector2 force, Vector2 worldPoint)
         {
             Body.ApplyForce(force, worldPoint);
         }
+
+        private void SetMotorSpeed(float speed)
+        {
+            if (Joint != null)
+                Joint.MotorSpeed = speed;
+        }
+        #endregion
     }
 
     enum Side
     {
         Left, Right, Top, Bottom
+    }
+
+    enum MotionSystem
+    {
+        Actuator, Motor
     }
 }
