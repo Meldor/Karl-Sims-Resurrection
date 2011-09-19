@@ -36,3 +36,12 @@ C:\Users\Miki\Documents\Visual Studio 2010\Projects\Karl-Sims-Resurrection\Prove
 C:\Users\Miki\Documents\Visual Studio 2010\Projects\Karl-Sims-Resurrection\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\obj\x86\Debug\Microsoft.Xna.Framework.RuntimeProfile.txt
 C:\Users\Miki\Documents\Visual Studio 2010\Projects\Karl-Sims-Resurrection\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\obj\x86\Debug\ProveMotoreFisico.exe
 C:\Users\Miki\Documents\Visual Studio 2010\Projects\Karl-Sims-Resurrection\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\obj\x86\Debug\ProveMotoreFisico.pdb
+D:\Francesco\Documenti\KSR_Meldor\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\bin\x86\Debug\Content\Arial.xnb
+D:\Francesco\Documenti\KSR_Meldor\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\bin\x86\Debug\Content\cerchio.xnb
+D:\Francesco\Documenti\KSR_Meldor\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\bin\x86\Debug\ProveMotoreFisico.exe
+D:\Francesco\Documenti\KSR_Meldor\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\bin\x86\Debug\ProveMotoreFisico.pdb
+D:\Francesco\Documenti\KSR_Meldor\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\bin\x86\Debug\FarseerPhysicsXNA.pdb
+D:\Francesco\Documenti\KSR_Meldor\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\obj\x86\Debug\ResolveAssemblyReference.cache
+D:\Francesco\Documenti\KSR_Meldor\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\obj\x86\Debug\Microsoft.Xna.Framework.RuntimeProfile.txt
+D:\Francesco\Documenti\KSR_Meldor\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\obj\x86\Debug\ProveMotoreFisico.exe
+D:\Francesco\Documenti\KSR_Meldor\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\obj\x86\Debug\ProveMotoreFisico.pdb

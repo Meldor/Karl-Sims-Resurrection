@@ -10,3 +10,5 @@ C:\Users\Miki\Documents\Visual Studio 2010\Projects\TestClientSocket_console\Tes
 C:\Users\Miki\Documents\Visual Studio 2010\Projects\TestClientSocket_console\TestClientSocket_console\bin\Debug\TestClientSocket_console.exe
 C:\Users\Miki\Documents\Visual Studio 2010\Projects\TestClientSocket_console\TestClientSocket_console\bin\Debug\TestClientSocket_console.pdb
 C:\Users\Miki\Documents\Visual Studio 2010\Projects\TestClientSocket_console\TestClientSocket_console\obj\x86\Debug\ResolveAssemblyReference.cache
+D:\Francesco\Documenti\KSR_Meldor\TestClientSocket_console\TestClientSocket_console\obj\x86\Debug\TestClientSocket_console.exe
+D:\Francesco\Documenti\KSR_Meldor\TestClientSocket_console\TestClientSocket_console\obj\x86\Debug\TestClientSocket_console.pdb

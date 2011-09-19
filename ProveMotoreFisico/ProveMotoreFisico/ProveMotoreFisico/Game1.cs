@@ -619,6 +619,11 @@ namespace ProveMotoreFisico
                         muscoli = false;
                         data = "Modalita' di movimento: motore";
                     }
+                    else if (data == "e")
+                    {
+                        ServerMethod_selezionaParti(stream);
+                        data = "End seleziona Parti";
+                    }
                     else
                         data = data.ToUpper();
                     
@@ -630,7 +635,43 @@ namespace ProveMotoreFisico
             client.Close();
 
 
-        }   
+        }
+
+        private void ServerMethod_selezionaParti(NetworkStream stream)
+        {
+            Byte[] bytes = new Byte[256];
+            bool fine = false;
+            int i;
+            String data = null;
+            byte[] msg;
+
+            msg = System.Text.Encoding.ASCII.GetBytes("Selezione Parti\n\ne -> elenca parti\nexit -> uscire");
+            stream.Write(msg, 0, msg.Length);
+            stream.Flush();
+
+            while (!fine)
+                if ((i = stream.Read(bytes, 0, bytes.Length)) != 0) //legge fino a 256 caratteri dallo stream di rete
+                {
+                    data = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
+                    if (data == "e")
+                    {
+                        data = System.Convert.ToString(partList.Count);
+                        data = String.Concat(data, " elementi");
+                    }
+                    else if (data == "exit")
+                    {
+                        data = "in uscita...";
+                        fine = true;
+                    }
+                    else
+                        data = data.ToUpper();
+
+                    msg = System.Text.Encoding.ASCII.GetBytes(data);
+                    stream.Write(msg, 0, msg.Length);
+
+                }
+
+        }
 
     }
 }

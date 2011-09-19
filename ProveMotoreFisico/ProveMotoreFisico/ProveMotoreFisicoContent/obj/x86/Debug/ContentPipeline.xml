@@ -7,8 +7,8 @@
       <Importer>FontDescriptionImporter</Importer>
       <Processor>FontDescriptionProcessor</Processor>
       <Options>None</Options>
-      <Output>C:\Users\Miki\Documents\Visual Studio 2010\Projects\Karl-Sims-Resurrection\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\bin\x86\Debug\Content\Arial.xnb</Output>
-      <Time>2011-09-15T19:20:40+02:00</Time>
+      <Output>D:\Francesco\Documenti\KSR_Meldor\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\bin\x86\Debug\Content\Arial.xnb</Output>
+      <Time>2011-09-19T21:55:09.6774527+02:00</Time>
     </Item>
     <Item>
       <Source>cerchio.bmp</Source>
@@ -16,8 +16,8 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
       <Options>None</Options>
-      <Output>C:\Users\Miki\Documents\Visual Studio 2010\Projects\Karl-Sims-Resurrection\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\bin\x86\Debug\Content\cerchio.xnb</Output>
-      <Time>2011-09-15T19:20:40+02:00</Time>
+      <Output>D:\Francesco\Documenti\KSR_Meldor\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\bin\x86\Debug\Content\cerchio.xnb</Output>
+      <Time>2011-09-19T21:55:09.6794528+02:00</Time>
     </Item>
     <BuildSuccessful>true</BuildSuccessful>
     <Settings>
@@ -25,39 +25,39 @@
       <TargetProfile>HiDef</TargetProfile>
       <BuildConfiguration>Debug</BuildConfiguration>
       <CompressContent>false</CompressContent>
-      <RootDirectory>C:\Users\Miki\Documents\Visual Studio 2010\Projects\Karl-Sims-Resurrection\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisicoContent\</RootDirectory>
-      <LoggerRootDirectory>C:\Users\Miki\Documents\Visual Studio 2010\Projects\Karl-Sims-Resurrection\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\</LoggerRootDirectory>
-      <IntermediateDirectory>C:\Users\Miki\Documents\Visual Studio 2010\Projects\Karl-Sims-Resurrection\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisicoContent\obj\x86\Debug\</IntermediateDirectory>
-      <OutputDirectory>C:\Users\Miki\Documents\Visual Studio 2010\Projects\Karl-Sims-Resurrection\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\bin\x86\Debug\Content\</OutputDirectory>
+      <RootDirectory>D:\Francesco\Documenti\KSR_Meldor\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisicoContent\</RootDirectory>
+      <LoggerRootDirectory>D:\Francesco\Documenti\KSR_Meldor\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\</LoggerRootDirectory>
+      <IntermediateDirectory>D:\Francesco\Documenti\KSR_Meldor\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisicoContent\obj\x86\Debug\</IntermediateDirectory>
+      <OutputDirectory>D:\Francesco\Documenti\KSR_Meldor\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\bin\x86\Debug\Content\</OutputDirectory>
     </Settings>
     <Assemblies>
       <Assembly>
-        <Key>C:\Program Files\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.XImporter.dll</Key>
-        <Value>2010-08-23T13:41:18+02:00</Value>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.XImporter.dll</Key>
+        <Value>2010-08-23T12:41:18+02:00</Value>
       </Assembly>
       <Assembly>
-        <Key>C:\Program Files\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.VideoImporters.dll</Key>
-        <Value>2010-08-23T13:41:18+02:00</Value>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.VideoImporters.dll</Key>
+        <Value>2010-08-23T12:41:18+02:00</Value>
       </Assembly>
       <Assembly>
-        <Key>C:\Program Files\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.TextureImporter.dll</Key>
-        <Value>2010-08-23T13:41:18+02:00</Value>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.TextureImporter.dll</Key>
+        <Value>2010-08-23T12:41:18+02:00</Value>
       </Assembly>
       <Assembly>
-        <Key>C:\Program Files\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.FBXImporter.dll</Key>
-        <Value>2010-08-23T13:41:18+02:00</Value>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.FBXImporter.dll</Key>
+        <Value>2010-08-23T12:41:18+02:00</Value>
       </Assembly>
       <Assembly>
-        <Key>C:\Program Files\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.EffectImporter.dll</Key>
-        <Value>2010-08-23T13:41:18+02:00</Value>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.EffectImporter.dll</Key>
+        <Value>2010-08-23T12:41:18+02:00</Value>
       </Assembly>
       <Assembly>
-        <Key>C:\Program Files\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.AudioImporters.dll</Key>
-        <Value>2010-08-23T13:41:18+02:00</Value>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.AudioImporters.dll</Key>
+        <Value>2010-08-23T12:41:18+02:00</Value>
       </Assembly>
       <Assembly>
         <Key>C:\Windows\Microsoft.Net\assembly\GAC_32\Microsoft.Xna.Framework.Content.Pipeline\v4.0_4.0.0.0__842cf8be1de50553\Microsoft.Xna.Framework.Content.Pipeline.dll</Key>
-        <Value>2011-01-12T10:57:02.0190844+01:00</Value>
+        <Value>2011-09-11T23:54:19.837251+02:00</Value>
       </Assembly>
     </Assemblies>
   </Asset>
