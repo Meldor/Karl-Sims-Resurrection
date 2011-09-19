@@ -8,7 +8,7 @@
       <Processor>FontDescriptionProcessor</Processor>
       <Options>None</Options>
       <Output>D:\Francesco\Documenti\KSR_Meldor\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\bin\x86\Debug\Content\Arial.xnb</Output>
-      <Time>2011-09-19T21:55:09.6774527+02:00</Time>
+      <Time>2011-09-19T23:12:23.3984863+02:00</Time>
     </Item>
     <Item>
       <Source>cerchio.bmp</Source>
@@ -17,7 +17,7 @@
       <Processor>TextureProcessor</Processor>
       <Options>None</Options>
       <Output>D:\Francesco\Documenti\KSR_Meldor\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\bin\x86\Debug\Content\cerchio.xnb</Output>
-      <Time>2011-09-19T21:55:09.6794528+02:00</Time>
+      <Time>2011-09-19T23:12:23.4004865+02:00</Time>
     </Item>
     <BuildSuccessful>true</BuildSuccessful>
     <Settings>
