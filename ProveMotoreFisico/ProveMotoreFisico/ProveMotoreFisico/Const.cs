@@ -17,7 +17,7 @@ namespace ProveMotoreFisico
         public static float Gravity = 10;
 
         //Parti
-        public static float MaxForcePerAreaUnit = 10.0f;
+        public static float MaxForcePerAreaUnit = 5.0f;
         public static float PartDensity = 0.1f;
         public static float MaxMotorTorquePerAreaUnit = 30.0f;
         public static float MaxSpeedPerLenghtUnit = 10.0f;

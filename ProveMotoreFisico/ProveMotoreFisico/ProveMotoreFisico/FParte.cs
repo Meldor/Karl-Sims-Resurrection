@@ -72,7 +72,25 @@ namespace ProveMotoreFisico
         float JointRadius, Density;
         Color BodyColor, JointColor;
         World World;
-        public MotionSystem PartMotionSystem;
+        public MotionSystem PartMotionSystem
+        {
+            get
+            {
+                return _partMotionSystem;
+            }
+            set
+            {
+                if (Joint != null)
+                {
+                    if (value == MotionSystem.Actuator)
+                        Joint.MotorEnabled = false;
+                    else
+                        Joint.MotorEnabled = true;
+                }
+                _partMotionSystem = value;
+            }
+        }
+        private MotionSystem _partMotionSystem;
         public RevoluteJoint Joint;
         public Actuator PartActuator;
         public Side ConnectionSide;

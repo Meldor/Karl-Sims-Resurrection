@@ -7,7 +7,7 @@
       <Importer>FontDescriptionImporter</Importer>
       <Processor>FontDescriptionProcessor</Processor>
       <Options>None</Options>
-      <Output>C:\Users\Miki\Documents\Visual Studio 2010\Projects\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\bin\x86\Debug\Content\Arial.xnb</Output>
+      <Output>C:\Users\Miki\Documents\Visual Studio 2010\Projects\Karl-Sims-Resurrection\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\bin\x86\Debug\Content\Arial.xnb</Output>
       <Time>2011-09-15T19:20:40+02:00</Time>
     </Item>
     <Item>
@@ -16,7 +16,7 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
       <Options>None</Options>
-      <Output>C:\Users\Miki\Documents\Visual Studio 2010\Projects\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\bin\x86\Debug\Content\cerchio.xnb</Output>
+      <Output>C:\Users\Miki\Documents\Visual Studio 2010\Projects\Karl-Sims-Resurrection\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\bin\x86\Debug\Content\cerchio.xnb</Output>
       <Time>2011-09-15T19:20:40+02:00</Time>
     </Item>
     <BuildSuccessful>true</BuildSuccessful>
@@ -25,10 +25,10 @@
       <TargetProfile>HiDef</TargetProfile>
       <BuildConfiguration>Debug</BuildConfiguration>
       <CompressContent>false</CompressContent>
-      <RootDirectory>C:\Users\Miki\Documents\Visual Studio 2010\Projects\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisicoContent\</RootDirectory>
-      <LoggerRootDirectory>C:\Users\Miki\Documents\Visual Studio 2010\Projects\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\</LoggerRootDirectory>
-      <IntermediateDirectory>C:\Users\Miki\Documents\Visual Studio 2010\Projects\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisicoContent\obj\x86\Debug\</IntermediateDirectory>
-      <OutputDirectory>C:\Users\Miki\Documents\Visual Studio 2010\Projects\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\bin\x86\Debug\Content\</OutputDirectory>
+      <RootDirectory>C:\Users\Miki\Documents\Visual Studio 2010\Projects\Karl-Sims-Resurrection\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisicoContent\</RootDirectory>
+      <LoggerRootDirectory>C:\Users\Miki\Documents\Visual Studio 2010\Projects\Karl-Sims-Resurrection\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\</LoggerRootDirectory>
+      <IntermediateDirectory>C:\Users\Miki\Documents\Visual Studio 2010\Projects\Karl-Sims-Resurrection\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisicoContent\obj\x86\Debug\</IntermediateDirectory>
+      <OutputDirectory>C:\Users\Miki\Documents\Visual Studio 2010\Projects\Karl-Sims-Resurrection\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\bin\x86\Debug\Content\</OutputDirectory>
     </Settings>
     <Assemblies>
       <Assembly>

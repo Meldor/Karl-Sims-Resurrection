@@ -27,3 +27,12 @@ H:\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\obj\x86\Debug\ResolveAs
 H:\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\obj\x86\Debug\Microsoft.Xna.Framework.RuntimeProfile.txt
 H:\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\obj\x86\Debug\ProveMotoreFisico.exe
 H:\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\obj\x86\Debug\ProveMotoreFisico.pdb
+C:\Users\Miki\Documents\Visual Studio 2010\Projects\Karl-Sims-Resurrection\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\bin\x86\Debug\Content\Arial.xnb
+C:\Users\Miki\Documents\Visual Studio 2010\Projects\Karl-Sims-Resurrection\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\bin\x86\Debug\Content\cerchio.xnb
+C:\Users\Miki\Documents\Visual Studio 2010\Projects\Karl-Sims-Resurrection\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\bin\x86\Debug\ProveMotoreFisico.exe
+C:\Users\Miki\Documents\Visual Studio 2010\Projects\Karl-Sims-Resurrection\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\bin\x86\Debug\ProveMotoreFisico.pdb
+C:\Users\Miki\Documents\Visual Studio 2010\Projects\Karl-Sims-Resurrection\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\bin\x86\Debug\FarseerPhysicsXNA.pdb
+C:\Users\Miki\Documents\Visual Studio 2010\Projects\Karl-Sims-Resurrection\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\Miki\Documents\Visual Studio 2010\Projects\Karl-Sims-Resurrection\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\obj\x86\Debug\Microsoft.Xna.Framework.RuntimeProfile.txt
+C:\Users\Miki\Documents\Visual Studio 2010\Projects\Karl-Sims-Resurrection\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\obj\x86\Debug\ProveMotoreFisico.exe
+C:\Users\Miki\Documents\Visual Studio 2010\Projects\Karl-Sims-Resurrection\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisico\obj\x86\Debug\ProveMotoreFisico.pdb

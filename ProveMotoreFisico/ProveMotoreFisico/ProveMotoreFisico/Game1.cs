@@ -488,7 +488,7 @@ namespace ProveMotoreFisico
                     if(muscoli)
                         spriteBatch.DrawString(arial, "MaxForcePerAreaUnit: " + selectedPart.PartActuator.MaxForce.ToString(), new Vector2(0, 40), Color.White);
                     else
-                        spriteBatch.DrawString(arial, "MotorTorquePerAreaUnit: " + selectedPart.Joint.MotorTorque.ToString(), new Vector2(0, 40), Color.White);
+                        spriteBatch.DrawString(arial, "MotorTorque: " + selectedPart.Joint.MotorTorque.ToString(), new Vector2(0, 40), Color.White);
             }
             //testo di debug
             spriteBatch.DrawString(arial, "MousePos: " + mousePos.X.ToString() + "," + mousePos.Y.ToString(), Vector2.Zero, Color.Black);
