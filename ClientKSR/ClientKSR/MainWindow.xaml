@@ -20,8 +20,21 @@
             </TabItem>
             <TabItem Header="Controlli" IsEnabled="False" IsSelected="False" Name="controlliTab">
                 <Grid Height="284" Name="grid1" Width="498">
-                    <RadioButton Content="Modalità Test" Height="16" HorizontalAlignment="Left" Margin="40,45,0,0" Name="testRadio" VerticalAlignment="Top" IsChecked="True" Width="105" Checked="testRadio_Checked" />
-                    <RadioButton Content="Modalità disegno" Height="16" HorizontalAlignment="Left" Margin="40,67,0,0" Name="disegnaRadio" VerticalAlignment="Top" Checked="disegnaRadio_Checked" />
+                    <RadioButton Content="Modalità Test" Height="16" HorizontalAlignment="Left" Margin="19,0,0,202" Name="testRadio" VerticalAlignment="Bottom" IsChecked="True" Width="105" Checked="testRadio_Checked" />
+                    <RadioButton Content="Modalità disegno" Height="16" HorizontalAlignment="Left" Margin="19,88,0,0" Name="disegnaRadio" VerticalAlignment="Top" Checked="disegnaRadio_Checked" />
+                    
+                    <GroupBox Header="Elementi" Height="270" HorizontalAlignment="Left" Margin="152,8,0,0" Name="groupBox1" VerticalAlignment="Top" Width="340" IsEnabled="True">
+                        <Grid Height="252" Name="grid2" Width="329">
+                            <ListBox Height="201" HorizontalAlignment="Left" Margin="25,43,0,0" Name="elementiList" VerticalAlignment="Top" Width="81" IsEnabled="True" />
+                        <ListBox Height="201" HorizontalAlignment="Left" Margin="134,43,0,0" Name="posizioneList" VerticalAlignment="Top" Width="81" IsEnabled="True" />
+                        <ListBox Height="201" HorizontalAlignment="Left" Margin="242,43,0,0" Name="rotazioneList" VerticalAlignment="Top" Width="81" IsEnabled="True" />
+                            <Label Content="Elemento" Height="23" HorizontalAlignment="Left" Margin="36,15,0,0" Name="label3" VerticalAlignment="Top" Width="59" />
+                            <Label Content="Posizione" Height="25" HorizontalAlignment="Right" Margin="0,16,123,0" Name="label4" VerticalAlignment="Top" Width="64" />
+                            <Label Content="Rotazione" Height="26" HorizontalAlignment="Right" Margin="0,15,15,0" Name="label5" VerticalAlignment="Top" Width="63" />
+                        </Grid>
+                    </GroupBox>
+                    <Button Content="Avvia Controllo" Height="29" HorizontalAlignment="Left" Margin="19,143,0,0" Name="bigBrotherButton" VerticalAlignment="Top" Width="108" Click="bigBrotherButton_Click" />
+                    <TextBox Height="90" HorizontalAlignment="Left" Margin="16,186,0,0" Name="consoleBBbox" VerticalAlignment="Top" Width="120" AcceptsReturn="True" AcceptsTab="True" IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" />
                 </Grid>
             </TabItem>
         </TabControl>

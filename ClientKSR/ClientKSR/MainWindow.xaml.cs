@@ -12,6 +12,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using System.Runtime.InteropServices;
+using System.Threading;
+
 using System.Net;
 using System.Net.Sockets;
 
@@ -22,20 +25,19 @@ namespace ClientKSR
     /// </summary>
     public partial class MainWindow : Window
     {
-        Boolean connesso = false;
+        Boolean connesso = false, activeBB=false;
         TcpClient client;
         NetworkStream stream;
         String console = "";
         String ip="127.0.0.1";
+        Thread trdBB;
         int porta;
-        
-        
+        delegate void funzioneVoid();
+        delegate System.Windows.Threading.DispatcherProcessingDisabled funzioneVar();
+
         public MainWindow()
         {
-            InitializeComponent();
-        
-            porta = System.Convert.ToInt32(portaBox.Text);
-            ip = ipBox.Text;
+           InitializeComponent(); 
         }
 
 
@@ -45,6 +47,9 @@ namespace ClientKSR
             {
                 try
                 {
+                    porta = System.Convert.ToInt32(portaBox.Text);
+                    ip = ipBox.Text;
+                    
                     client = new TcpClient(ip, porta);
                     stream = client.GetStream();
                     console = String.Concat(console, "Connessione avvenuta...\n");
@@ -70,41 +75,166 @@ namespace ClientKSR
 
         }
 
-        private void inviaComando(string comando)
+        public string inviaComando(string comando, NetworkStream _stream, Boolean verbose, string _consoleText, TextBox _box)
         {
             Int32 bytes_ricevuti;
             String messaggio=comando;
             Byte[] data;
-
+            
             data = System.Text.Encoding.ASCII.GetBytes(messaggio);
-            stream.Write(data, 0, data.Length);
+            _stream.Write(data, 0, data.Length);
 
-            console = String.Concat(console, "Inviato -> ", messaggio, "\n");
-            consoleBox.Text = console;
-
+            if (verbose)
+            {
+                _consoleText = String.Concat(_consoleText, "Inviato -> ", messaggio, "\n");
+                if (!_box.CheckAccess())
+                    _box.Dispatcher.Invoke((funzioneVoid)delegate() { _box.Text = _consoleText; }); 
+                else
+                    _box.Text = _consoleText;
+            }
+            
             data = new Byte[256];
-            bytes_ricevuti = stream.Read(data, 0, data.Length);
+            
+            while((bytes_ricevuti = _stream.Read(data, 0, data.Length))==0);
             messaggio = System.Text.Encoding.ASCII.GetString(data, 0, bytes_ricevuti);
 
-            console = String.Concat(console, "Ricevuto -> ", messaggio, "\n");
-            consoleBox.Text = console;
+            if (verbose)
+            {
+                _consoleText = String.Concat(_consoleText, "Ricevuto -> ", messaggio, "\n");
+                if (!_box.CheckAccess())
+                    _box.Dispatcher.Invoke((funzioneVoid)delegate() { _box.Text = _consoleText; });
+                else
+                    _box.Text = _consoleText;
+            }
 
-            return;
-
+            return messaggio;
         
         }
 
         private void disegnaRadio_Checked(object sender, RoutedEventArgs e)
         {
             if(connesso)
-                inviaComando("d");
+                inviaComando("d", stream, true, console, consoleBox);
 
         }
 
         private void testRadio_Checked(object sender, RoutedEventArgs e)
         {
-            if (connesso) 
-                inviaComando("b");
+            if (connesso)
+                inviaComando("b", stream, true, console, consoleBox);
+        }
+
+        private void aggiornaListe(List<string[]> listaDati)
+        {
+           
+            List<string> xStringa = new List<string>();
+            List<string> yStringa = new List<string>();
+            List<string> angoloStringa = new List<string>();
+
+            //elementiList.Dispatcher.BeginInvoke((funzioneVoid)delegate() { elementiList.Items.Clear(); });
+            //posizioneList.Dispatcher.BeginInvoke((funzioneVoid)delegate() { posizioneList.Items.Clear(); });
+            //rotazioneList.Dispatcher.BeginInvoke((funzioneVoid)delegate() { rotazioneList.Items.Clear(); });
+            
+            foreach (string[] vettStr in listaDati)
+            {
+                if (vettStr.Length == 3)
+                {
+
+                    xStringa.Add(vettStr[0]);
+                    yStringa.Add(vettStr[1]);
+                    angoloStringa.Add(vettStr[2]);
+                    //elementiList.Dispatcher.BeginInvoke((funzioneVoid)delegate() { elementiList.Items.Add(vettStr[0]); });
+                    //posizioneList.Dispatcher.BeginInvoke((funzioneVoid)delegate() { posizioneList.Items.Add(vettStr[1]); });
+                    //rotazioneList.Dispatcher.BeginInvoke((funzioneVoid)delegate() { rotazioneList.Items.Add(vettStr[2]); });
+                }
+            }
+
+
+
+            elementiList.Dispatcher.BeginInvoke((funzioneVoid)delegate() { elementiList.ItemsSource = xStringa; });
+            posizioneList.Dispatcher.BeginInvoke((funzioneVoid)delegate() { posizioneList.ItemsSource = yStringa; });
+            rotazioneList.Dispatcher.BeginInvoke((funzioneVoid)delegate() { rotazioneList.ItemsSource = angoloStringa; });
+
+            return;
+        
+        
+        }
+        
+        private void bigBrother(Object oggetto)
+        {
+            TextBox _box =(TextBox)oggetto;
+            double angolo; 
+            int gradi;
+            TcpClient clientBB;
+            NetworkStream streamBB;
+            String ipBB = "127.0.0.1";
+            String messaggio, console="" ;
+            String[] vettDati;
+            List<string[]> listaDati;
+            int portaBB=14000;
+           
+            clientBB = new TcpClient(ipBB, portaBB);
+            streamBB = clientBB.GetStream();
+
+            while (activeBB)
+            {
+                listaDati = new List<string[]>();
+                System.Threading.Thread.Sleep(50);  
+                messaggio = inviaComando("*", streamBB, false, console, _box);
+                //MessageBox.Show(messaggio);
+                              
+                while (messaggio != "#")
+                {
+                    
+                    messaggio = inviaComando("*", streamBB, false, console, _box);
+                    vettDati=messaggio.Split('\n');
+                    if (vettDati.Length == 3)
+                    {
+                        angolo = System.Convert.ToDouble(vettDati[2]);
+                        angolo = (angolo * 180) / Math.PI;
+                        gradi = System.Convert.ToInt32(angolo);
+                        vettDati[2] = System.Convert.ToString(gradi);
+                    }
+                    listaDati.Add(vettDati);
+                    //MessageBox.Show(messaggio);
+                }
+
+                aggiornaListe(listaDati);           
+            
+            }
+
+            inviaComando("#", streamBB, false, console, _box);
+
+            streamBB.Close();
+            clientBB.Close();
+        
+        }
+
+        private void aggionaBox()
+        {
+            consoleBBbox.Text += "Hello from a static thread procedure.\n";
+            return;
+        }
+
+        private void bigBrotherButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!activeBB)
+            {
+                inviaComando("BB", stream, true, console, consoleBox);
+                activeBB = true;
+                bigBrotherButton.Content = "Stop";
+                trdBB = new Thread(new ParameterizedThreadStart(this.bigBrother));
+                trdBB.IsBackground = true;
+                trdBB.Start(consoleBBbox);
+            }
+            else
+            {
+                activeBB = false;
+                bigBrotherButton.Content = "Avvia Controllo";
+            
+            }
+
+
         }
 
       

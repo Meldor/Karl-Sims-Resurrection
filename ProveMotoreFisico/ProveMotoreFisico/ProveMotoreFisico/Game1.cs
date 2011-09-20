@@ -564,16 +564,20 @@ namespace ProveMotoreFisico
         }
 
 
-        TcpListener server = null;
-        NetworkStream stream = null;
-        TcpClient client = null;
+        
         private void ServerMethod()
         {
+            TcpListener server = null;
+            NetworkStream stream = null;
+            TcpClient client = null;
             Int32 port = 13000;
             IPAddress localAddr = IPAddress.Parse("127.0.0.1");
             bool fine = false;
             Byte[] bytes = new Byte[256];
             String data = null;
+            Thread trdBB;
+
+            
 
             server = new TcpListener(localAddr, port);
             server.Start();
@@ -619,10 +623,17 @@ namespace ProveMotoreFisico
                         muscoli = false;
                         data = "Modalita' di movimento: motore";
                     }
-                    else if (data == "e")
+                    /*else if (data == "e")
                     {
                         ServerMethod_selezionaParti(stream);
                         data = "End seleziona Parti";
+                    }*/
+                    else if (data == "BB")
+                    {
+                        trdBB = new Thread(new ThreadStart(this.ServerMethod_bigBrother));
+                        trdBB.IsBackground = true;
+                        trdBB.Start();
+                        data = "Controllo parti avviato";
                     }
                     else
                         data = data.ToUpper();
@@ -632,19 +643,20 @@ namespace ProveMotoreFisico
                 }
             
             // Shutdown and end connection
+            
             client.Close();
 
 
         }
 
-        private void ServerMethod_selezionaParti(NetworkStream stream)
+        /*private void ServerMethod_selezionaParti(NetworkStream stream)
         {
             Byte[] bytes = new Byte[256];
             bool fine = false;
             int i;
             String data = null;
             byte[] msg;
-
+            
             msg = System.Text.Encoding.ASCII.GetBytes("Selezione Parti\n\ne -> elenca parti\nexit -> uscire");
             stream.Write(msg, 0, msg.Length);
             stream.Flush();
@@ -671,6 +683,61 @@ namespace ProveMotoreFisico
 
                 }
 
+        }*/
+
+        private void ServerMethod_bigBrother()
+        {
+
+            TcpListener server = null;
+            NetworkStream stream = null;
+            TcpClient client = null;
+            Int32 port = 14000;
+            IPAddress localAddr = IPAddress.Parse("127.0.0.1");
+            bool fine = false;
+            Byte[] bytes = new Byte[256], msg;
+            String data = null;
+            int i, j=-1;
+            server = new TcpListener(localAddr, port);
+            server.Start();
+
+            //Console.Write("In attesa di connessioni... ");
+
+            client = server.AcceptTcpClient();
+            //Console.WriteLine("Connesso!");
+            stream = client.GetStream();
+
+            while (!fine)
+            {
+                
+                if ((i = stream.Read(bytes, 0, bytes.Length)) != 0) //legge fino a 256 caratteri dallo stream di rete
+                {
+                    data = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
+                    if (data == "*")
+                    {
+                        if (j == -1)
+                            data = System.Convert.ToString(partList.Count);
+                        else if (j >= partList.Count)
+                        {
+                            j = -2;
+                            data = "#";
+                        }
+                        else
+                            data = String.Concat(partList[j].Position.X, "\n", partList[j].Position.Y, "\n", partList[j].Rotation);
+                        j++;
+                    }
+                    else if (data == "#")
+                        fine = true;
+                    else
+                        data = data.ToUpper();
+
+                    msg = System.Text.Encoding.ASCII.GetBytes(data);
+                    stream.Write(msg, 0, msg.Length);
+
+                }
+            }
+        
+        client.Close();
+        server.Stop();
         }
 
     }
