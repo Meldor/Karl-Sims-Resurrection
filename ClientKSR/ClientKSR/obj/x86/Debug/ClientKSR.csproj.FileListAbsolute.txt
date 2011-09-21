@@ -1,0 +1,13 @@
+D:\Francesco\Documenti\KSR_Meldor\ClientKSR\ClientKSR\bin\Debug\ClientKSR.exe
+D:\Francesco\Documenti\KSR_Meldor\ClientKSR\ClientKSR\bin\Debug\ClientKSR.pdb
+D:\Francesco\Documenti\KSR_Meldor\ClientKSR\ClientKSR\obj\x86\Debug\ResolveAssemblyReference.cache
+D:\Francesco\Documenti\KSR_Meldor\ClientKSR\ClientKSR\obj\x86\Debug\MainWindow.baml
+D:\Francesco\Documenti\KSR_Meldor\ClientKSR\ClientKSR\obj\x86\Debug\MainWindow.g.cs
+D:\Francesco\Documenti\KSR_Meldor\ClientKSR\ClientKSR\obj\x86\Debug\App.g.cs
+D:\Francesco\Documenti\KSR_Meldor\ClientKSR\ClientKSR\obj\x86\Debug\ClientKSR_MarkupCompile.cache
+D:\Francesco\Documenti\KSR_Meldor\ClientKSR\ClientKSR\obj\x86\Debug\ClientKSR.g.resources
+D:\Francesco\Documenti\KSR_Meldor\ClientKSR\ClientKSR\obj\x86\Debug\ClientKSR.Properties.Resources.resources
+D:\Francesco\Documenti\KSR_Meldor\ClientKSR\ClientKSR\obj\x86\Debug\GenerateResource.read.1.tlog
+D:\Francesco\Documenti\KSR_Meldor\ClientKSR\ClientKSR\obj\x86\Debug\GenerateResource.write.1.tlog
+D:\Francesco\Documenti\KSR_Meldor\ClientKSR\ClientKSR\obj\x86\Debug\ClientKSR.exe
+D:\Francesco\Documenti\KSR_Meldor\ClientKSR\ClientKSR\obj\x86\Debug\ClientKSR.pdb
