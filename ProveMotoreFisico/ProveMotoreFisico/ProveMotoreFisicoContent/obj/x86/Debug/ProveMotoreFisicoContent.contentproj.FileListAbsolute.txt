@@ -1,5 +1,1 @@
-c:\users\miki\documents\visual studio 2010\Projects\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisicoContent\obj\x86\Debug\ResolveAssemblyReference.cache
-C:\Users\Francesco\Desktop\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisicoContent\obj\x86\Debug\ResolveAssemblyReference.cache
-H:\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisicoContent\obj\x86\Debug\ResolveAssemblyReference.cache
-C:\Users\Miki\Documents\Visual Studio 2010\Projects\Karl-Sims-Resurrection\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisicoContent\obj\x86\Debug\ResolveAssemblyReference.cache
 D:\Francesco\Documenti\KSR_Meldor\ProveMotoreFisico\ProveMotoreFisico\ProveMotoreFisicoContent\obj\x86\Debug\ResolveAssemblyReference.cache

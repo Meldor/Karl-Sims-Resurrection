@@ -1,2 +1,0 @@
-Content\Arial.xnb
-Content\cerchio.xnb
