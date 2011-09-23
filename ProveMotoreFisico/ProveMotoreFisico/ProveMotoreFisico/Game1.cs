@@ -564,73 +564,186 @@ namespace ProveMotoreFisico
         }
 
 
-        TcpListener server = null;
-        NetworkStream stream = null;
-        TcpClient client = null;
+        
         private void ServerMethod()
         {
-            Int32 port = 13000;
+            TcpListener server = null;
+            NetworkStream stream = null;
+            TcpClient client = null;
+            Int32 port = 13000, i;
             IPAddress localAddr = IPAddress.Parse("127.0.0.1");
             bool fine = false;
             Byte[] bytes = new Byte[256];
             String data = null;
-
+            Thread trdBB;
+            
             server = new TcpListener(localAddr, port);
             server.Start();
-            
-            //Console.Write("In attesa di connessioni... ");
-                       
-            client = server.AcceptTcpClient();
-            //Console.WriteLine("Connesso!");
-            stream = client.GetStream();
 
+            while (true)
+            {
+                fine = false;
+                client = server.AcceptTcpClient();
+                stream = client.GetStream();
+
+
+                while (!fine)
+                    if ((i = stream.Read(bytes, 0, bytes.Length)) != 0) //legge fino a 256 caratteri dallo stream di rete
+                    {
+                        data = System.Text.Encoding.ASCII.GetString(bytes, 0, i); // interpreta lo stream a blocchi di 1Byte cod.ASCII
+                        data.ToLower();
+                        /* Qui si mettono i comandi a cui risponde il server */
+
+                        if (data == "b")
+                        {
+                            comando = 0;
+                            data = "Modalita cubetti attivata";
+                        }
+                        else if (data == "d")
+                        {
+                            comando = 1;
+                            data = "Modalita disegno attivata";
+                        }
+                        else if (data == "help")
+                        {
+                            data = "\nb -> modalita' cubetti\nd -> modalita' disegno\na -> abilita muscoli\nm -> abilita motori\nquit -> chiudi client";
+                        }
+                        else if (data == "a")
+                        {
+                            muscoli = true;
+                            data = "Modalita' di movimento: muscoli";
+                        }
+                        else if (data == "m")
+                        {
+                            muscoli = false;
+                            data = "Modalita' di movimento: motore";
+                        }
+                        /*else if (data == "e")
+                        {
+                            ServerMethod_selezionaParti(stream);
+                            data = "End seleziona Parti";
+                        }*/
+                        else if (data == "BB")
+                        {
+                            trdBB = new Thread(new ThreadStart(this.ServerMethod_bigBrother));
+                            trdBB.IsBackground = true;
+                            trdBB.Start();
+                            data = "Controllo parti avviato";
+                        }
+                        else if (data == "exit" || data == "quit")
+                        {
+                            fine = true;
+                            data = "Server disconnesso...";
+                        }
+                        else
+                            data = data.ToUpper();
+
+                        byte[] msg = System.Text.Encoding.ASCII.GetBytes(data);
+                        stream.Write(msg, 0, msg.Length);
+                    }
+
+                // Shutdown and end connection
+                if (fine)
+                    System.Threading.Thread.Sleep(50); //Aspetta che il client legga
+
+                client.Close();
+                
+            }
+
+            //return;
+        }
+
+        /*private void ServerMethod_selezionaParti(NetworkStream stream)
+        {
+            Byte[] bytes = new Byte[256];
+            bool fine = false;
             int i;
+            String data = null;
+            byte[] msg;
             
+            msg = System.Text.Encoding.ASCII.GetBytes("Selezione Parti\n\ne -> elenca parti\nexit -> uscire");
+            stream.Write(msg, 0, msg.Length);
+            stream.Flush();
+
             while (!fine)
                 if ((i = stream.Read(bytes, 0, bytes.Length)) != 0) //legge fino a 256 caratteri dallo stream di rete
                 {
-                    data = System.Text.Encoding.ASCII.GetString(bytes, 0, i); // interpreta lo stream a blocchi di 1Byte cod.ASCII
-                    //Console.WriteLine("Ricevuto: {0}", data);
-                    
-                    /* Qui si mettono i comandi a cui risponde il server */
-
-                    if (data == "b")
+                    data = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
+                    if (data == "e")
                     {
-                        comando = 0;
-                        data = "Modalita cubetti attivata";
-
+                        data = System.Convert.ToString(partList.Count);
+                        data = String.Concat(data, " elementi");
                     }
-                    else if (data == "d")
+                    else if (data == "exit")
                     {
-                        comando = 1;
-                        data = "Modalita disegno attivata";
-                    }
-                    else if (data == "help")
-                    {
-                        data = "\nb -> modalita' cubetti\nd -> modalita' disegno\na -> abilita muscoli\nm -> abilita motori\nquit -> chiudi client";
-                    }
-                    else if (data == "a")
-                    {
-                        muscoli = true;
-                        data = "Modalita' di movimento: muscoli";
-                    }
-                    else if (data == "m")
-                    {
-                        muscoli = false;
-                        data = "Modalita' di movimento: motore";
+                        data = "in uscita...";
+                        fine = true;
                     }
                     else
                         data = data.ToUpper();
-                    
-                    byte[] msg = System.Text.Encoding.ASCII.GetBytes(data);
+
+                    msg = System.Text.Encoding.ASCII.GetBytes(data);
                     stream.Write(msg, 0, msg.Length);
+
                 }
+
+        }*/
+
+        private void ServerMethod_bigBrother()
+        {
+
+            TcpListener server = null;
+            TcpClient client = null;
+            NetworkStream stream = null;
+            Int32 port = 14000;
+            IPAddress localAddr = IPAddress.Parse("127.0.0.1");
+            bool fine = false;
+            Byte[] bytes = new Byte[256], msg;
+            String data = null;
+            int i, j=-1;
             
-            // Shutdown and end connection
-            client.Close();
+            server = new TcpListener(localAddr, port);
+            server.Start();
+            
+            client = server.AcceptTcpClient();
+            stream = client.GetStream();
+            
+            while (!fine)
+            {
+                
+                if ((i = stream.Read(bytes, 0, bytes.Length)) != 0) //legge fino a 256 caratteri dallo stream di rete
+                {
+                    data = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
+                    if (data == "*")    //Il client è funzionante e richiede informazioni
+                    {
+                        if (j == -1)  //Invio numero di elementi presenti
+                            data = System.Convert.ToString(partList.Count);
+                        else if (j >= partList.Count) // Inviate tutte le informazioni
+                        {
+                            j = -2;
+                            data = "#";
+                        }
+                        else  //Invio le informazioni di un rettangolo
+                            data = String.Concat(partList[j].Position.X, "\n", partList[j].Position.Y, "\n", partList[j].Rotation);
+                        j++;
+                    }
+                    else if (data == "#") //Il client si sta chiudendo
+                        fine = true;
+                    else   //Comando non riconosciuto
+                        data = data.ToUpper();
 
+                    msg = System.Text.Encoding.ASCII.GetBytes(data);
+                    stream.Write(msg, 0, msg.Length);
 
-        }   
+                }
+            }
+        
+        client.Close();
+        server.Stop();
+        return;
+        }
+
+        
 
     }
 }
