@@ -61,7 +61,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FarseerPhysicsXNA">
-      <HintPath>C:\Program Files\Microsoft Visual Studio 10.0\VC#\Farseer Physics Engine 3.2 XNA\bin\x86\Debug\FarseerPhysicsXNA.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\..\Program Files\Microsoft Visual Studio 10.0\VC#\Farseer Physics Engine 3.2 XNA\bin\x86\Debug\FarseerPhysicsXNA.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
       <Private>False</Private>
@@ -112,11 +112,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actuator.cs" />
-    <Compile Include="BodyGenotype.cs" />
     <Compile Include="Camera.cs" />
     <Compile Include="Const.cs" />
     <Compile Include="Utils.cs" />
-    <Compile Include="Creature.cs" />
     <Compile Include="DrawingHelper.cs" />
     <Compile Include="FParte.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
