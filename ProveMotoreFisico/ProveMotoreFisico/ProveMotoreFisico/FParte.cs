@@ -95,7 +95,7 @@ namespace ProveMotoreFisico
         private MotionSystem _partMotionSystem;
         public RevoluteJoint Joint;
         public Actuator PartActuator;
-        Side ConnectionSide;
+        internal Side ConnectionSide;
         bool[] CollidingSides;
         public List<Collision> Collisions;
         List<FParte> ChildParts;
@@ -466,9 +466,9 @@ namespace ProveMotoreFisico
                             if (Collisions[i].Type == ContactType.Corner)
                             {
                                 int sideIndex = Utils.RapidLog2((int)Collisions[i].CollisionCorner);
+                                int otherSideIndex = Utils.RapidLog2((0xFFFE << sideIndex) & (int)Collisions[i].CollisionCorner);
                                 CollidingSides[sideIndex] = true;
-                                sideIndex = (sideIndex + 1) % 4;
-                                CollidingSides[sideIndex] = true;
+                                CollidingSides[otherSideIndex] = true;
                             }
                             else
                                 CollidingSides[(int)Collisions[i].CollisionSide] = true;
