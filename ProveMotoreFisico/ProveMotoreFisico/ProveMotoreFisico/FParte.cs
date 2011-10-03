@@ -1,18 +1,20 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
 using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
 using FarseerPhysics.Factories;
 using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Dynamics.Joints;
+using FarseerPhysics.Dynamics.Contacts;
 
 namespace ProveMotoreFisico
 {
     class FParte
     {
         Fixture BodyFixture, JointFixture;
-        Body Body;
+        public Body Body;
         public float Rotation
         {
             get
@@ -93,7 +95,10 @@ namespace ProveMotoreFisico
         private MotionSystem _partMotionSystem;
         public RevoluteJoint Joint;
         public Actuator PartActuator;
-        public Side ConnectionSide;
+        Side ConnectionSide;
+        bool[] CollidingSides;
+        public List<Collision> Collisions;
+        List<FParte> ChildParts;
 
         #region Costruttori e inizializzazione
 
@@ -128,6 +133,7 @@ namespace ProveMotoreFisico
             Body = BodyFactory.CreateBody(world, bodyPosition);
             Body.BodyType = BodyType.Dynamic;
             BodyFixture = FixtureFactory.CreateRectangle(bodySize.X, bodySize.Y, density, Vector2.Zero, Body);
+            BodyFixture.UserData = this;
             BodySize = bodySize;
             BodyColor = bodyColor;
             JointColor = jointColor;
@@ -136,8 +142,13 @@ namespace ProveMotoreFisico
             Joint = null;
             PartActuator = null;
             PartMotionSystem = MotionSystem.Actuator;
+            CollidingSides = new bool[4];
+            for (int i = 0; i < 4; i++)
+                CollidingSides[i] = false;
+            Collisions = new List<Collision>();
+            ChildParts = new List<FParte>();
         }
-        
+
         #endregion
 
         #region Draw
@@ -156,16 +167,25 @@ namespace ProveMotoreFisico
         public void Draw(SpriteBatch spriteBatch, Texture2D rectangularTexture, Texture2D circularTexture, float zoomFactor, Color bodyColor, Color jointColor)
         {
             int circularTextureSize = circularTexture.Width;
-            spriteBatch.Draw(rectangularTexture, Coord.ToGraphics(Body.Position, zoomFactor), Coord.GetDrawingRectangle(BodySize, zoomFactor), bodyColor, Body.Rotation, Coord.ToGraphics(BodySize / 2, zoomFactor), 1, SpriteEffects.None, 0);
+            spriteBatch.Draw(rectangularTexture, Utils.ToGraphics(Body.Position, zoomFactor), Utils.GetDrawingRectangle(BodySize, zoomFactor), bodyColor, Body.Rotation, Utils.ToGraphics(BodySize / 2, zoomFactor), 1, SpriteEffects.None, 0);
             if (Joint != null)
             {
-                spriteBatch.Draw(circularTexture, Coord.ToGraphics(Coord.TranslateAndRotate(JointOffset, Body.Position, Body.Rotation), zoomFactor), null, jointColor, 0, new Vector2(circularTextureSize) / 2, 2 * Coord.ToGraphics(new Vector2(JointRadius), zoomFactor) / 100, SpriteEffects.None, 0);
+                spriteBatch.Draw(circularTexture, Utils.ToGraphics(Utils.TranslateAndRotate(JointOffset, Body.Position, Body.Rotation), zoomFactor), null, jointColor, 0, new Vector2(circularTextureSize) / 2, 2 * Utils.ToGraphics(new Vector2(JointRadius), zoomFactor) / 100, SpriteEffects.None, 0);
                 PartActuator.Draw(spriteBatch, Color.Green, Color.Red, rectangularTexture, zoomFactor);
+            }
+            Vertex[] vertices = GetVertices();
+            for (int i = 0; i < 4; i++)
+            {
+                if (CollidingSides[i])
+                    DrawingHelper.DrawLine(spriteBatch, rectangularTexture, Utils.ToGraphics(vertices[i%4].Coords), Utils.ToGraphics(vertices[(i + 3)%4].Coords), Color.Red);
+                else
+                    DrawingHelper.DrawLine(spriteBatch, rectangularTexture, Utils.ToGraphics(vertices[i%4].Coords), Utils.ToGraphics(vertices[(i + 3)%4].Coords), Color.Green);
             }
         }
         #endregion
 
         #region Join
+        /* VERSIONE OBSOLETA DA AGGIORNARE
         /// <summary>
         /// Posiziona la parte vicino a quella a cui deve unirsi e crea il giunto.
         /// </summary>
@@ -176,7 +196,7 @@ namespace ProveMotoreFisico
         /// <returns>false se thisPartPosizion è all'interno della parte, true altrimenti</returns>
         public bool Join(FParte otherPart, Vector2 thisPartPosition, Vector2 otherPartPosition, Color jointColor)
         {
-            Body.Position = Coord.TranslateAndRotate((otherPartPosition - thisPartPosition), otherPart.Body.Position, otherPart.Body.Rotation);
+            Body.Position = Utils.TranslateAndRotate((otherPartPosition - thisPartPosition), otherPart.Body.Position, otherPart.Body.Rotation);
             Body.Rotation = otherPart.Body.Rotation;
             Joint = JointFactory.CreateRevoluteJoint(World, otherPart.Body, this.Body, thisPartPosition);
             JointOffset = new Vector2(thisPartPosition.X, thisPartPosition.Y);
@@ -214,7 +234,7 @@ namespace ProveMotoreFisico
             PartActuator = new Actuator(this, otherPart, Const.MaxForcePerAreaUnit * BodyArea);
             return true;
         }
-
+        */
         /// <summary>
         /// Posiziona la parte vicino a quella a cui deve unirsi e crea il giunto.
         /// </summary>
@@ -250,7 +270,7 @@ namespace ProveMotoreFisico
             else
                 return false;
 
-            Body.Position = Coord.TranslateAndRotate(otherPartSidePosition - thisPartSidePosition - jointOffset, otherPart.Body.Position, otherPart.Body.Rotation);
+            Body.Position = Utils.TranslateAndRotate(otherPartSidePosition - thisPartSidePosition - jointOffset, otherPart.Body.Position, otherPart.Body.Rotation);
             Body.Rotation = otherPart.Body.Rotation;
             if (Joint != null)
                 World.RemoveJoint(Joint);
@@ -265,6 +285,7 @@ namespace ProveMotoreFisico
             JointOffset = thisPartSidePosition + jointOffset / 2;
             Joint.CollideConnected = true;
             PartActuator = new Actuator(this, otherPart, Const.MaxForcePerAreaUnit * BodyArea);
+            otherPart.AddChild(this);
             return true;
 
         }
@@ -293,15 +314,281 @@ namespace ProveMotoreFisico
                 Joint.MotorSpeed = speed;
         }
         #endregion
+
+        #region Gestione delle collisioni
+
+        /// <summary>
+        /// Restituisce i Vertex relativi agli angoli della parte, nel sistema assoluto
+        /// </summary>
+        /// <returns>I Vertex corrispondenti agli angoli della parte</returns>
+        private Vertex[] GetVertices()
+        {
+            Vertex[] output = new Vertex[4];
+            Vertex newVertex = new Vertex();
+            newVertex.Coords = Body.GetWorldPoint(new Vector2(BodySize.X / 2, -BodySize.Y / 2));
+            newVertex.Position = Corner.TopRight;
+            output[0] = newVertex;
+            newVertex.Coords = Body.GetWorldPoint(new Vector2(BodySize.X / 2, BodySize.Y / 2));
+            newVertex.Position = Corner.BottomRight;
+            output[1] = newVertex;
+            newVertex.Coords = Body.GetWorldPoint(new Vector2(-BodySize.X / 2, BodySize.Y / 2));
+            newVertex.Position = Corner.BottomLeft;
+            output[2] = newVertex;
+            newVertex.Coords = Body.GetWorldPoint(new Vector2(-BodySize.X / 2, -BodySize.Y / 2));
+            newVertex.Position = Corner.TopLeft;
+            output[3] = newVertex;
+            return output;
+        }
+
+        public void UpdateCollisionPoints()
+        {
+            Collisions.Clear();
+            for (int i = 0; i < 4; i++)
+                CollidingSides[i] = false;
+            if (Body.ContactList != null)
+            {
+                Contact currentContact = Body.ContactList.Contact;
+                while (currentContact != null)
+                {   //tiene conto solo dei Contact relativi alla BodyFixture
+                    //(non so perché il Body contiene dei Contact che non sono più relativi alla sua Fixture)
+                    //e ignora quelli dovuti al giunto
+                    if (((currentContact.FixtureA == BodyFixture) || (currentContact.FixtureB == BodyFixture)) && 
+                        (currentContact.FixtureA != JointFixture) && (currentContact.FixtureB != JointFixture))
+                    {
+                        bool childJoint = false;
+                        foreach (FParte child in ChildParts)
+                            if ((currentContact.FixtureA == child.JointFixture) || (currentContact.FixtureB == child.JointFixture))
+                            {
+                                childJoint = true;
+                                break;
+                            }
+                        //ignora la collisione anche se è dovuta al giunto di una parte figlia
+                        if (!childJoint)
+                        {
+                            //estrae i punti di collisione del contatto corrente
+                            FixedArray2<Vector2> points = new FixedArray2<Vector2>();
+                            Vector2 vec = new Vector2();
+                            currentContact.GetWorldManifold(out vec, out points);
+                            
+                            for (int i = 0; i < 2; i++)
+                            {
+                                //alcuni Manifold contengono dei punti (0,0), non so perché. Vanno ignorati.
+                                if (!points[i].Equals(Vector2.Zero))
+                                {
+                                    bool belongsToThisPart = false;
+                                    ContactType contactType = ContactType.Corner;
+                                    Corner corner;
+                                    Side side = Side.Bottom;
+                                    if (IsCorner(points[i], out corner))
+                                    {
+                                        contactType = ContactType.Corner;
+                                        belongsToThisPart = true;
+                                    }
+                                    else if (IsSide(points[i], out side))
+                                    {
+                                        contactType = ContactType.Side;
+                                        belongsToThisPart = true;
+                                    }
+                                    //non so perché ma alcuni contatti, relativi alla fixture giusta, non stanno sul bordo della fixture stessa
+                                    //quindi prima verifico che siano o su un angolo o su un lato della parte
+                                    if (belongsToThisPart)
+                                    {
+                                        Collision newCollision = new Collision();
+                                        newCollision.Position = new Vector2(points[i].X, points[i].Y);
+                                        newCollision.OtherFixture = (currentContact.FixtureA == BodyFixture) ? currentContact.FixtureB : currentContact.FixtureA;
+                                        newCollision.Type = contactType;
+                                        if (contactType == ContactType.Corner)
+                                            newCollision.CollisionCorner = corner;
+                                        else
+                                            newCollision.CollisionSide = side;
+                                        Collisions.Add(newCollision);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    //scorre la lista dei Contact
+                    currentContact = currentContact.Next;
+                }
+                if (Collisions.Count > 0)
+                {
+                    //una collisione è "risolta" se è già stata trattata
+                    bool[] solvedCollisions = new bool[Collisions.Count];
+                    /* cerco coppie di collisioni relative alla stessa fixture, il che accade quando due fixture sono appoggiate l'una sull'altra
+                     * o una a fianco dell'altra e sono tra loro "parallele"
+                     * In questo caso solo il lato interessato viene contrassegnato come interessato da una collisione.
+                     * (l'algoritmo credo sia quadratico ma non penso sia un problema, spesso ci sono 2-3 collisioni, mai più di 5-6)
+                     * */
+                    for (int i = 0; i < Collisions.Count; i++)
+                        for (int j = i + 1; j < Collisions.Count; j++)
+                        {
+                            if (Collisions[i].OtherFixture == Collisions[j].OtherFixture)
+                            {
+                                /*se entrambe le collisioni sono segnate su angoli facendo l'AND tra i due Corner e valutando
+                                 * la posizione dell'1 che si ottiene con RapidLog2 si ottiene il Side in comune tra i due
+                                 * Corner (es. TopRight = 0011, TopLeft = 1001, TopRight & TopLeft = 0001, Log2(0001) = 0 = Top)
+                                 */
+                                if((Collisions[i].Type == ContactType.Corner) && (Collisions[j].Type == ContactType.Corner))
+                                {
+                                    int sideIndex = (int)Collisions[i].CollisionCorner & (int)Collisions[j].CollisionCorner;
+                                    if (sideIndex != 0)
+                                    {
+                                        sideIndex = Utils.RapidLog2(sideIndex);
+                                        CollidingSides[sideIndex] = true;
+                                        solvedCollisions[i] = true;
+                                        solvedCollisions[j] = true;
+                                    }
+                                }
+                                //se almeno una collisione è su un lato ho già il lato interessato da una delle collisioni
+                                //registrate su un lato
+                                else if (Collisions[i].Type == ContactType.Side)
+                                {
+                                    CollidingSides[(int)Collisions[i].CollisionSide] = true;
+                                    solvedCollisions[i] = true;
+                                    solvedCollisions[j] = true;
+                                }
+                                else
+                                {
+                                    CollidingSides[(int)Collisions[j].CollisionSide] = true;
+                                    solvedCollisions[i] = true;
+                                    solvedCollisions[j] = true;
+                                }
+
+                            }
+                        }
+                    /* restano solo le collisioni singole (cioè con Fixture con cui la BodyFixture attuale ha un solo
+                     * punto di contatto): se è un Corner abilita entrambe i lati che fanno capo a quel vertice, altrimenti
+                     * se è un Side abilita solo il relativo lato
+                     */
+                    for (int i = 0; i < Collisions.Count; i++)
+                        if (!solvedCollisions[i])
+                        {
+                            if (Collisions[i].Type == ContactType.Corner)
+                            {
+                                int sideIndex = Utils.RapidLog2((int)Collisions[i].CollisionCorner);
+                                CollidingSides[sideIndex] = true;
+                                sideIndex = (sideIndex + 1) % 4;
+                                CollidingSides[sideIndex] = true;
+                            }
+                            else
+                                CollidingSides[(int)Collisions[i].CollisionSide] = true;
+                        }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Indica se un punto si trova su un lato, e se sì su quale (da richiamare dopo IsCorner solo se il punto non
+        /// è su un angolo, altrimenti restituisce solo uno dei due lati relativi all'angolo)
+        /// </summary>
+        /// <param name="point">Punto da valutare, nel sistema assoluto</param>
+        /// <param name="side">Lato su cui si trova eventualmente il punto (se la funzione restituisce false side vale Side.Bottom a prescindere)</param>
+        /// <returns>true se il punto si trova ad una distanza inferiore di Const.Epsilon da un lato</returns>
+        private bool IsSide(Vector2 point, out Side side)
+        {
+            Vector2 localPoint = this.Body.GetLocalPoint(point);
+            bool returnValue = true;
+            side = Side.Bottom;
+            //collisione da sotto
+            if (MathUtils.FloatEquals(localPoint.Y, BodySize.Y / 2, Const.Epsilon))
+                side = Side.Bottom;
+            //collisione da sopra
+            else if (MathUtils.FloatEquals(localPoint.Y, -BodySize.Y / 2, Const.Epsilon))
+                side = Side.Top;
+            //collisione da destra
+            else if (MathUtils.FloatEquals(localPoint.X, BodySize.X / 2, Const.Epsilon))
+                side = Side.Right;
+            //collisione da sinistra
+            else if (MathUtils.FloatEquals(localPoint.X, -BodySize.X / 2, Const.Epsilon))
+                side = Side.Left;
+            else
+                returnValue = false;
+
+            return returnValue;
+        }
+
+        /// <summary>
+        /// Indica se un punto si trova in corrispondenza di un angolo della parte e in caso affermativo di quale angolo
+        /// </summary>
+        /// <param name="point">Punto da valutare, nel sistema assoluto</param>
+        /// <param name="corner">Angolo corrispondente eventualmente al punto (se la funzione restituisce false il valore di corner non è significativo)</param>
+        /// <returns>true se point si trova ad una distranza inferiore di Const.Epsilon da un angolo</returns>
+        private bool IsCorner(Vector2 point, out Corner corner)
+        {
+            Vertex[] vertices = GetVertices();
+            foreach (Vertex vertex in vertices)
+            {
+                if ((point - vertex.Coords).Length() < Const.Epsilon)
+                {
+                    corner = vertex.Position;
+                    return true;
+                }
+            }
+            corner = 0;
+            return false;
+        }
+
+        /// <summary>
+        /// Valuta se un punto si trova o meno all'interno della BodyFixture
+        /// </summary>
+        /// <param name="point">Punto da valutare, nel sistema assoluto</param>
+        /// <returns>true se point si trova all'inetrno della BodyFixture</returns>
+        public bool TestPoint(Vector2 point)
+        {
+            return BodyFixture.TestPoint(ref point);
+        }
+
+        #endregion
+
+        public void AddChild(FParte part)
+        {
+            ChildParts.Add(part);
+        }
     }
+
+    #region enum Side, Corner, MotionSystem, ContactType
 
     enum Side
     {
-        Left, Right, Top, Bottom
+        Top = 0, Right = 1, Bottom = 2, Left = 3
+    }
+
+    enum Corner
+    {
+        TopRight = (1 << Side.Top) | (1 << Side.Right),
+        TopLeft = (1 << Side.Top) | (1 << Side.Left),
+        BottomRight = (1 << Side.Bottom) | (1 << Side.Right),
+        BottomLeft = (1 << Side.Bottom) | (1 << Side.Left)
     }
 
     enum MotionSystem
     {
         Actuator, Motor
     }
+
+    enum ContactType
+    {
+        Side, Corner
+    }
+
+    #endregion
+
+    #region struct Vertex, Collision
+
+    struct Vertex
+    {
+        public Corner Position;
+        public Vector2 Coords;
+    }
+
+    struct Collision
+    {
+        public Vector2 Position;
+        public Corner CollisionCorner;
+        public Side CollisionSide;
+        public ContactType Type;
+        public Fixture OtherFixture;
+    }
+
+    #endregion
 }

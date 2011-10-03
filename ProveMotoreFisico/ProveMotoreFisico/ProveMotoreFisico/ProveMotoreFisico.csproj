@@ -114,7 +114,7 @@
     <Compile Include="Actuator.cs" />
     <Compile Include="Camera.cs" />
     <Compile Include="Const.cs" />
-    <Compile Include="Coord.cs" />
+    <Compile Include="Utils.cs" />
     <Compile Include="DrawingHelper.cs" />
     <Compile Include="FParte.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
