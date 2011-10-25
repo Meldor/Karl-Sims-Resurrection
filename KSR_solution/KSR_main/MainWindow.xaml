@@ -1,0 +1,13 @@
+﻿<Window x:Class="KSR_main.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="350" Width="525" Loaded="Window_Loaded">
+    <Grid>
+        <ListBox Height="195" HorizontalAlignment="Left" Margin="24,33,0,0" Name="listParti_ListBox" VerticalAlignment="Top" Width="127" />
+        <Button Content="CreaReteNeurale" Height="41" HorizontalAlignment="Left" Margin="318,54,0,0" Name="makeCreature_Button" VerticalAlignment="Top" Width="149" Click="makeCreature_Button_Click" />
+        <Button Content="step" Height="36" HorizontalAlignment="Left" Margin="318,110,0,0" Name="button1" VerticalAlignment="Top" Width="147" Click="button1_Click" />
+        <TextBox Height="34" HorizontalAlignment="Left" Margin="167,86,0,0" Name="textBox1" VerticalAlignment="Top" Width="77" />
+        <TextBox Height="31" HorizontalAlignment="Left" Margin="167,126,0,0" Name="textBox2" VerticalAlignment="Top" Width="77" />
+        <TextBox Height="30" HorizontalAlignment="Left" Margin="167,0,0,118" Name="textBox3" VerticalAlignment="Bottom" Width="77" />
+    </Grid>
+</Window>
