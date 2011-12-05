@@ -10,7 +10,7 @@ namespace TestNEAT
         
         static void Main(string[] args)
         {
-            KSR_library.ReteNeurale myNetwork = new KSR_library.ReteNeurale(2, 3);
+            /*KSR_libraryRN.ReteNeurale myNetwork = new KSR_libraryRN.ReteNeurale(2, 3);
             SortedList<int, Double> lista;
             Double[] vett;
             int passo = 1;
@@ -44,8 +44,19 @@ namespace TestNEAT
                 foreach (double l in lista.Values)
                     Console.WriteLine("\n\tOut -> " + l);
                 passo++;
+             */
+            KSR_libraryRN.GestoreRN_NEAT gestore=new KSR_libraryRN.GestoreRN_NEAT(3,2);
+            KSR_libraryRN.GenotipoRN p=gestore.getPerceptron();
+            Console.WriteLine(p.toString());
+            
+
+            KSR_libraryRN.GenotipoRN mutato=gestore.mutazioneAggiungiNeurone(p);
+            Console.WriteLine(mutato.toString());
+
+            Console.WriteLine(p.toString());
+            Console.Read();
                                    
             }
         }
     }
-}
+
