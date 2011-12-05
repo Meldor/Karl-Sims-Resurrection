@@ -35,12 +35,12 @@ namespace KSR_library
     /* Classi per il genotipo */
     class Threshold
     {
-        private static int numFunz=5;
+        private static int numFunz = 5;
         static Random generatoreCasuale = new Random();
 
         public static Double Sinusoide(Double input) /*Seno e Coseno tra x:[-1,1] y:[-1,1]*/
         {
-            return Math.Sin(input*Math.PI);        
+            return Math.Sin(input * Math.PI);
         }
 
         public static Double Cosinusoide(Double input)
@@ -50,12 +50,12 @@ namespace KSR_library
 
         public static Double SigmoideInsensibile(Double input) /* Sigmoide da x:[0,1] y:[0,1] taglia i valori negativi*/
         {
-            return 1 / (1 + Math.Exp(-12*(input*0.5f)));
+            return 1 / (1 + Math.Exp(-12 * (input * 0.5f)));
         }
 
         public static Double SigmoideAttenuante(Double input) /* Sigmoide da x:[-1,1] y:[0,1] attenua i valori negativi*/
         {
-            return 1 / (1 + Math.Exp(-6 *input));
+            return 1 / (1 + Math.Exp(-6 * input));
         }
 
         public static Double IperbolicTan(Double input) /* Tangente iperbolica x:[-1,1] y:[-1,1] */
@@ -66,7 +66,7 @@ namespace KSR_library
         public static thresholdFunction getRandomDelegate()
         {
             Thread.Sleep(10);
-            int id=generatoreCasuale.Next(0,numFunz-1);
+            int id = generatoreCasuale.Next(0, numFunz - 1);
             switch (id)
             {
                 case 0: return Sinusoide;
@@ -83,22 +83,22 @@ namespace KSR_library
 
 
     class Genotipo
-    { 
+    {
         SortedList<int, NodoStruct> nodi;
         NodoStruct nodo;
         ArcoStruct arco;
         int contatore;
 
         public Genotipo()
-        { 
-            nodi=new SortedList<int, NodoStruct>();
+        {
+            nodi = new SortedList<int, NodoStruct>();
             contatore = 0;
         }
 
         public void AddNodo(Vector2 _dimensioni, int _maxRicorsione)
         {
             nodo = new NodoStruct();
-            nodo.archi=new SortedList<int,ArcoStruct>();
+            nodo.archi = new SortedList<int, ArcoStruct>();
             nodo.dimensioni = _dimensioni;
             nodo.maxRicorsione = _maxRicorsione;
             nodi.Add(contatore, nodo);
@@ -107,7 +107,7 @@ namespace KSR_library
 
         public void AddArco(int _partenza, int _destinazione, Double _posizione, Boolean _simmetrico)
         {
-            
+
             if (_partenza < contatore && _destinazione < contatore)
             {
                 nodo = nodi[_partenza];
@@ -117,18 +117,19 @@ namespace KSR_library
                 nodo.archi.Add(nodo.contatore, arco);
                 nodo.contatore++;
             }
-        
-        
-        
+
+
+
         }
 
-    
+
     }
+
 
     struct ArcoStruct
     {
         public Double posizione;
-        public Boolean simmetrico; 
+        public Boolean simmetrico;
     }
 
     struct NodoStruct
@@ -151,17 +152,17 @@ namespace KSR_library
             neuroni = new List<NeuroneStruct>();
             neuroniA = new List<NeuroneStruct>();
             neuroniS = new List<NeuroneStruct>();
-            NEATLibrary=new SortedList<int,NeuroneStruct>();
-            NEAT_numID=0;
-            numNeuroniSensori=numB;
-            numNeuroniAttuatori=numA;
+            NEATLibrary = new SortedList<int, NeuroneStruct>();
+            NEAT_numID = 0;
+            numNeuroniSensori = numB;
+            numNeuroniAttuatori = numA;
 
         }
 
-        private void AddNeurone(thresholdFunction funzione,  int id, TipoNeurone tipo)
+        private void AddNeurone(thresholdFunction funzione, int id, TipoNeurone tipo)
         {
-            NeuroneStruct neurone=new NeuroneStruct();
-            neurone.inizializza(funzione,id,tipo);
+            NeuroneStruct neurone = new NeuroneStruct();
+            neurone.inizializza(funzione, id, tipo);
             return;
         }
 
@@ -174,8 +175,8 @@ namespace KSR_library
         public void generaPercettron()
         {
             NeuroneStruct neurone;
-            
-            Random generatoreCasuale=new Random();
+
+            Random generatoreCasuale = new Random();
 
             for (int i = 0; i < numNeuroniAttuatori; i++)
             {
@@ -190,31 +191,31 @@ namespace KSR_library
             {
                 neurone = new NeuroneStruct();
                 neurone.inizializza(Threshold.getRandomDelegate(), NEAT_numID, TipoNeurone.NSensor);
-                foreach(NeuroneStruct n in neuroniA)
-                    neurone.addAssone(n, generatoreCasuale.NextDouble());            
+                foreach (NeuroneStruct n in neuroniA)
+                    neurone.addAssone(n, generatoreCasuale.NextDouble());
                 neuroni.Add(neurone);
                 neuroniS.Add(neurone);
                 NEAT_numID++;
             }
 
-            return;      
+            return;
         }
 
         public SortedList<int, Double> Calcola()
         {
-            SortedList<int, Double> output= new SortedList<int,double>();
+            SortedList<int, Double> output = new SortedList<int, double>();
             double Out;
 
             foreach (NeuroneStruct neurone in neuroni)
-            { 
+            {
                 Out = neurone.attiva();
-                if (neurone.GetTipo()==TipoNeurone.NActuator)
-                    output.Add(neurone.GetID(), Out); 
-            
-            }
-            
+                if (neurone.GetTipo() == TipoNeurone.NActuator)
+                    output.Add(neurone.GetID(), Out);
 
-                
+            }
+
+
+
             return output;
         }
 
@@ -230,7 +231,7 @@ namespace KSR_library
                     output.Add(neurone.GetID(), Out);
 
             }
-            
+
             return output;
         }
 
@@ -240,14 +241,14 @@ namespace KSR_library
                 for (int i = 0; i < vett.Length; i++)
                     neuroniS[i].addInput(vett[i]);
 
-        
+
         }
 
         public int GetNumberSensor()
         { return neuroniS.Count; }
 
-        
-    
+
+
     }
 
     struct NeuroneStruct
@@ -269,7 +270,7 @@ namespace KSR_library
         {
             neatId = _id;
             tipo = _tipo;
-            inputP= new List<double>();
+            inputP = new List<double>();
             inputF = new List<double>();
             assoni = new List<AssoneStruct>();
             funzioneSoglia = _funzione;
@@ -284,7 +285,7 @@ namespace KSR_library
 
         public Double attiva()
         {
-            Double val =this.calcola();
+            Double val = this.calcola();
             foreach (AssoneStruct assone in assoni)
                 assone.attiva(val);
             return val;
@@ -305,7 +306,7 @@ namespace KSR_library
             inputF.Clear();
 
             valore = this.calcola();
-            return valore;        
+            return valore;
         }
 
         public void addAssone(NeuroneStruct neuroneLink, Double peso)
@@ -314,11 +315,11 @@ namespace KSR_library
             assone.inizializza(peso, neuroneLink);
             assoni.Add(assone);
             return;
-        
+
         }
 
 
-    
+
     }
 
     struct AssoneStruct
@@ -341,10 +342,97 @@ namespace KSR_library
             return;
         }
 
-    
+
     }
 
     enum TipoNeurone { NSensor, NHide, NActuator };
 
+    class ReteNeuraleGenotipo
+    {
+        //public
+        GenotipoNeurone[] vett_neuroni;
+        GenotipoAssoni[] vett_assoni;
+        int NEATcont_n;
+        int NEATcont_a;
+        public ReteNeuraleGenotipo()
+        {
+            vett_neuroni = new GenotipoNeurone[50];
+            vett_assoni = new GenotipoAssoni[50];
 
+        }
+
+        public void generaPerceptron(int sensori, int attuatori)
+        {
+            for (int i = 0; i < sensori; i++)
+            { 
+            
+            
+            }
+        }
+
+
+
+    }
+
+
+  
+
+    class GenotipoAssoni
+    {
+        private int idNEAT;
+        private int idNeuroneP;
+        private int idNeuroneA;
+        private int peso;
+        private bool attivo;
+
+        public GenotipoAssoni(int idNEAT, int neuroneP, int neuroneA, int peso)
+        {
+            this.idNEAT = idNEAT;
+            this.idNeuroneP = neuroneP;
+            this.idNeuroneA = neuroneA;
+            this.peso = peso;
+            attivo = true;
+        }
+
+        public void disattiva()
+        {attivo=false;}
+        public void attiva()
+        {attivo=true;}
+
+        public int getNEATid()
+        { return idNEAT; }
+        public int getIdNeuroneP()
+        { return idNeuroneP; }
+        public int getIdNeuroneA()
+        { return idNeuroneA; }
+        public int getPeso()
+        { return peso; }
+
+    }
+
+    class GenotipoNeurone
+    {
+        private int idNEAT;
+        private int funzione;
+        private int livello;
+        private TipoNeurone tipo;
+
+        public GenotipoNeurone(int idNEAT, int funzione, int livello, TipoNeurone tipo)
+        {
+            this.idNEAT = idNEAT;
+            this.funzione = funzione;
+            this.livello = livello;
+            this.tipo = tipo;
+        }
+
+        public int getNEATid()
+        { return idNEAT; }
+        public int getFunzione()
+        { return funzione; }
+        public int getLivello()
+        { return livello; }
+        public TipoNeurone getTipo()
+        { return tipo; }
+
+    }
 }
