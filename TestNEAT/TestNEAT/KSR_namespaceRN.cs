@@ -90,7 +90,7 @@ namespace KSR_libraryRN
                 p.addNeuroneInput(new GenotipoRN.NeuroneG(contNeuroni++, 0));
 
             for (int i = 0; i < output; i++)
-                p.addNeurone(new GenotipoRN.NeuroneG(contNeuroni++, 0));
+                p.addNeuroneOutput(new GenotipoRN.NeuroneG(contNeuroni++, 0));
 
             //for (int i = 0; i < input+output; i++)
             //{
@@ -158,10 +158,43 @@ namespace KSR_libraryRN
             return g;
         }
 
-        private GenotipoRN mutazioneAggiungiAssone(GenotipoRN genotipo)
+        public GenotipoRN mutazioneAggiungiAssone(GenotipoRN genotipo)
         {
-            GenotipoRN g = new GenotipoRN();
+            GenotipoRN g = new GenotipoRN(genotipo);
+            Random generatoreCasuale = new Random();
+            bool esiste = false;
+            
+            
+            int neurone1;
+            int neurone2;
 
+            do
+            {
+                neurone1 = generatoreCasuale.Next(contNeuroni);
+            }
+            while (!genotipo.contieneNeuroneID(neurone1));
+
+            do
+            {
+                neurone2 = generatoreCasuale.Next(contNeuroni);
+            }
+            while (!genotipo.contieneNeuroneID(neurone2));
+
+            for (int i = 0; i < g.getNumeroAssoni(); i++ )
+                if (g.assoni[i].testaCollegamento(neurone1, neurone2))
+                {
+                    GenotipoRN.AssoneG assone=g.assoni[i];
+                    assone.raddoppia();
+                    g.assoni[i] = assone;
+                    esiste = true;
+                    Console.WriteLine("Raddoppio "+neurone1+" - "+neurone2);
+                }
+
+            if (!esiste)
+            {
+                g.addAssone(new GenotipoRN.AssoneG(contAssoni,neurone1,neurone2,generatoreCasuale.NextDouble()));
+                contAssoni++;
+            }
 
             return g;
         }
@@ -402,7 +435,7 @@ namespace KSR_libraryRN
     {
         public struct NeuroneG : IComparable<NeuroneG>
         {
-            int idNEAT;
+            public int idNEAT;
             int tipo;
 
             public NeuroneG(int idNEAT, int tipo)
@@ -455,6 +488,11 @@ namespace KSR_libraryRN
             public double getPeso()
             { return peso; }
 
+            public void raddoppia()
+            { peso *= 2; }
+
+            public bool testaCollegamento(int input, int output)
+            { return (this.input == input && this.output == output); }
          
 
             public String toString()
@@ -470,6 +508,7 @@ namespace KSR_libraryRN
         public List<AssoneG> assoni;
         public SortedList<int,NeuroneG> neuroni;
         public ICollection<NeuroneG> neuroniInput;
+        public ICollection<NeuroneG> neuroniOutput;
 
         public GenotipoRN()
         {
@@ -477,6 +516,7 @@ namespace KSR_libraryRN
             assoni = new List<AssoneG>();
             neuroni = new SortedList<int, NeuroneG>();
             neuroniInput = new List<NeuroneG>();
+            neuroniOutput = new List<NeuroneG>();
         }
 
         public GenotipoRN(GenotipoRN g)
@@ -500,6 +540,12 @@ namespace KSR_libraryRN
             neuroniInput.Add(n);
         }
 
+        public void addNeuroneOutput(NeuroneG n)
+        {
+            neuroni.Add(n);
+            neuroniOutput.Add(n);
+        }
+
         public int getNumeroAssoni()
         { return assoni.Count; }
 
@@ -521,6 +567,16 @@ namespace KSR_libraryRN
         public int CompareTo(GenotipoRN other)
         { return t - other.t; }
 
+        public bool contieneNeuroneID(int n)
+        {
+            NeuroneG[] neuroniVector = neuroni.ToArray();
+            bool trovato = false;
+
+            for (int i = 0; i < neuroni.Count && !trovato; i++)
+                if (neuroniVector[i].idNEAT == n)
+                    trovato = true;
+            return trovato; 
+        }
        
     }
 

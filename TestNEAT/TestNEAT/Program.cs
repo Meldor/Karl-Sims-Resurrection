@@ -47,13 +47,16 @@ namespace TestNEAT
              */
             KSR_libraryRN.GestoreRN_NEAT gestore=new KSR_libraryRN.GestoreRN_NEAT(3,2);
             KSR_libraryRN.GenotipoRN p=gestore.getPerceptron();
-            Console.WriteLine(p.toString());
+            Console.WriteLine("Perceptron\n"+p.toString());
             
 
             KSR_libraryRN.GenotipoRN mutato=gestore.mutazioneAggiungiNeurone(p);
-            Console.WriteLine(mutato.toString());
+            Console.WriteLine("Aggiunto Neurone\n"+mutato.toString());
 
-            Console.WriteLine(p.toString());
+            KSR_libraryRN.GenotipoRN mutato2 = gestore.mutazioneAggiungiAssone(mutato);
+            Console.WriteLine("Aggiunto assone\n"+mutato2.toString());
+
+            Console.WriteLine("Perceptron\n" + p.toString());
             Console.Read();
                                    
             }
