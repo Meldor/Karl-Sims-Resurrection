@@ -411,6 +411,9 @@ namespace KSR_libraryRN
                 this.tipo = tipo;
             }
 
+            public int GetId()
+            { return idNEAT; }
+
            
             public int CompareTo(NeuroneG other)
             {
@@ -465,14 +468,14 @@ namespace KSR_libraryRN
 
         public int t;
         public List<AssoneG> assoni;
-        public ISet<NeuroneG> neuroni;
+        public SortedList<int,NeuroneG> neuroni;
         public ICollection<NeuroneG> neuroniInput;
 
         public GenotipoRN()
         {
             t = -1;
             assoni = new List<AssoneG>();
-            neuroni = new SortedSet<NeuroneG>();
+            neuroni = new SortedList<int, NeuroneG>();
             neuroniInput = new List<NeuroneG>();
         }
 
@@ -481,7 +484,7 @@ namespace KSR_libraryRN
             
             t = g.t+1;
             assoni = new List<AssoneG>(g.assoni);
-            neuroni = new SortedSet<NeuroneG>(g.neuroni);
+            neuroni = new SortedList<int, NeuroneG>();
             neuroniInput = new List<NeuroneG>(g.neuroniInput);
         }
 
@@ -489,11 +492,11 @@ namespace KSR_libraryRN
         { assoni.Add(a); }
 
         public void addNeurone(NeuroneG n)
-        { neuroni.Add(n); }
+        { neuroni.Add(n.GetId(), n); }
 
         public void addNeuroneInput(NeuroneG n)
         {
-            neuroni.Add(n);
+            neuroni.Add(n.GetId(), n);
             neuroniInput.Add(n);
         }
 

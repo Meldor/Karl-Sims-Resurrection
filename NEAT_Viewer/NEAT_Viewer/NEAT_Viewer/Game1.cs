@@ -24,6 +24,8 @@ namespace NEAT_Viewer
         Texture2D circTexture;
         Texture2D rectTexture;
 
+        GrafoDisegno grafo;
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -39,6 +41,12 @@ namespace NEAT_Viewer
         protected override void Initialize()
         {
             rectTexture = DrawingHelper.GenerateRectangularTexture(graphics.GraphicsDevice, 1000, 1000, Color.White);
+            IsMouseVisible = true;
+            GestoreRN_NEAT gestore = new GestoreRN_NEAT(3, 2);
+            GenotipoRN genotipo = gestore.getPerceptron();
+            GenotipoRN g_mutato = gestore.mutazioneAggiungiNeurone(genotipo);
+            g_mutato = gestore.mutazioneAggiungiNeurone(g_mutato);
+            grafo = new GrafoDisegno(g_mutato);
 
             base.Initialize();
         }
@@ -87,8 +95,9 @@ namespace NEAT_Viewer
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-            spriteBatch.Begin();
-            DrawingHelper.DrawSpline(spriteBatch, rectTexture, Color.Black, new Vector2(100,100), new Vector2(0, -50), new Vector2(150, 50), new Vector2(50, 0), 4);
+            spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend);
+            grafo.Draw(spriteBatch, circTexture, rectTexture, Color.Yellow);
+            //DrawingHelper.DrawSpline(spriteBatch, rectTexture, Color.Black, new Vector2(100,100), new Vector2(0, -50), new Vector2(150, 50), new Vector2(50, 0), 4);
             spriteBatch.End();
 
             base.Draw(gameTime);

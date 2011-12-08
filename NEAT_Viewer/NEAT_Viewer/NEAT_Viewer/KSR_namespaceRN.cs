@@ -86,11 +86,17 @@ namespace KSR_libraryRN
             GenotipoRN p = new GenotipoRN();
             p.t = 0;
 
-            for (int i = 0; i < input+output; i++)
-            {
-                p.addNeurone(new GenotipoRN.NeuroneG(contNeuroni, 0));
-                contNeuroni++;            
-            }
+            for (int i = 0; i < input; i++)
+                p.addNeuroneInput(new GenotipoRN.NeuroneG(contNeuroni++, 0));
+
+            for (int i = 0; i < output; i++)
+                p.addNeurone(new GenotipoRN.NeuroneG(contNeuroni++, 0));
+
+            //for (int i = 0; i < input+output; i++)
+            //{
+            //    p.addNeurone(new GenotipoRN.NeuroneG(contNeuroni, 0));
+            //    contNeuroni++;            
+            //}
 
             for (int i = 0; i < (input * output); i++)
             {
@@ -100,9 +106,8 @@ namespace KSR_libraryRN
                 p.addAssone(new GenotipoRN.AssoneG(contAssoni, I, O, 1-2*peso));
                 contAssoni++;
             }
-
+            
             genotipi.Add(p);
-
         }
 
         public GenotipoRN[] mutazione(GenotipoRN genotipo, int num)
@@ -406,6 +411,9 @@ namespace KSR_libraryRN
                 this.tipo = tipo;
             }
 
+            public int GetId()
+            { return idNEAT; }
+
            
             public int CompareTo(NeuroneG other)
             {
@@ -447,6 +455,9 @@ namespace KSR_libraryRN
             public double getPeso()
             { return peso; }
 
+            public int GetId()
+            { return idNEAT; }
+
          
 
             public String toString()
@@ -460,35 +471,45 @@ namespace KSR_libraryRN
 
         public int t;
         public List<AssoneG> assoni;
-        public ISet<NeuroneG> neuroni;
+        public SortedList<int,NeuroneG> neuroni;
+        public ICollection<NeuroneG> neuroniInput;
 
         public GenotipoRN()
         {
             t = -1;
             assoni = new List<AssoneG>();
-            neuroni = new SortedSet<NeuroneG>();
+            neuroni = new SortedList<int, NeuroneG>();
+            neuroniInput = new List<NeuroneG>();
         }
 
         public GenotipoRN(GenotipoRN g)
         {
-            
             t = g.t+1;
             assoni = new List<AssoneG>(g.assoni);
-            neuroni = new SortedSet<NeuroneG>(g.neuroni);
-            
+            neuroni = new SortedList<int, NeuroneG>(g.neuroni);
+            neuroniInput = new List<NeuroneG>(g.neuroniInput);
         }
 
         public void addAssone(AssoneG a)
         { assoni.Add(a); }
 
         public void addNeurone(NeuroneG n)
-        { neuroni.Add(n); }
+        { neuroni.Add(n.GetId(), n); }
+
+        public void addNeuroneInput(NeuroneG n)
+        {
+            neuroni.Add(n.GetId(), n);
+            neuroniInput.Add(n);
+        }
 
         public int getNumeroAssoni()
         { return assoni.Count; }
 
         public int getNumeroNeuroni()
         { return neuroni.Count; }
+
+        public int getNumeroNeuroniInput()
+        { return neuroniInput.Count; }
 
         public String toString()
         {

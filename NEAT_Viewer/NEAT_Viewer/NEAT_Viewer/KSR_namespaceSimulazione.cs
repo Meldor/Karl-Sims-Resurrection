@@ -12,6 +12,15 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 
+//Motore Fisico
+
+//using FarseerPhysics.Common;
+//using FarseerPhysics.Dynamics;
+//using FarseerPhysics.Factories;
+//using FarseerPhysics.Collision.Shapes;
+//using FarseerPhysics.Dynamics.Joints;
+//using FarseerPhysics.Dynamics.Contacts;
+
 //Rete e Thread
 
 using System.Net;

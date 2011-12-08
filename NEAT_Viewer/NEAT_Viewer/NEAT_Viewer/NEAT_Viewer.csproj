@@ -107,7 +107,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Const.cs" />
     <Compile Include="DrawingHelper.cs" />
+    <Compile Include="Grafo.cs" />
     <Compile Include="KSR_namespaceRN.cs" />
     <Compile Include="KSR_namespaceSimulazione.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
