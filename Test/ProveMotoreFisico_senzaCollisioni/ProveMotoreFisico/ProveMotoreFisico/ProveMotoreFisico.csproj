@@ -93,6 +93,7 @@
     <Reference Include="mscorlib">
       <Private>False</Private>
     </Reference>
+    <Reference Include="PresentationFramework" />
     <Reference Include="System">
       <Private>False</Private>
     </Reference>
@@ -115,7 +116,7 @@
     <Compile Include="BodyGenotype.cs" />
     <Compile Include="Camera.cs" />
     <Compile Include="Const.cs" />
-    <Compile Include="Utils.cs" />
+    <Compile Include="Coord.cs" />
     <Compile Include="Creature.cs" />
     <Compile Include="DrawingHelper.cs" />
     <Compile Include="FParte.cs" />

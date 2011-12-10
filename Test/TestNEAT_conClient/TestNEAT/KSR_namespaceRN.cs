@@ -471,7 +471,8 @@ namespace KSR_libraryRN
                 
             }
 
-
+            public int GetId()
+            { return idNEAT; }
 
             public void attiva()
             { this.attivo = 1; }
@@ -514,7 +515,7 @@ namespace KSR_libraryRN
         {
             t = -1;
             assoni = new List<AssoneG>();
-            neuroni = new SortedList<int, NeuroneG>();
+            neuroni = new SortedList<int,NeuroneG>();
             neuroniInput = new List<NeuroneG>();
             neuroniOutput = new List<NeuroneG>();
         }

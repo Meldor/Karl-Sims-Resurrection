@@ -115,8 +115,12 @@
     <Compile Include="BodyGenotype.cs" />
     <Compile Include="Camera.cs" />
     <Compile Include="Const.cs" />
+<<<<<<< HEAD
     <Compile Include="Utils.cs" />
+=======
+    <Compile Include="Coord.cs" />
     <Compile Include="Creature.cs" />
+>>>>>>> 8a3fc3a4aec0338648be57dccc5e02e98e6b1040
     <Compile Include="DrawingHelper.cs" />
     <Compile Include="FParte.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

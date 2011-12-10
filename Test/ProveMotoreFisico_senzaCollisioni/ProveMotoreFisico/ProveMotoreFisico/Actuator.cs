@@ -19,28 +19,28 @@ namespace ProveMotoreFisico
         {
             get
             {
-                return Utils.TranslateAndRotate(LocalFigliaDir, ParteFiglia.Position, ParteFiglia.Rotation);
+                return Coord.TranslateAndRotate(LocalFigliaDir, ParteFiglia.Position, ParteFiglia.Rotation);
             }
         }
         Vector2 WorldFiglioInv
         {
             get
             {
-                return Utils.TranslateAndRotate(LocalFigliaInv, ParteFiglia.Position, ParteFiglia.Rotation);
+                return Coord.TranslateAndRotate(LocalFigliaInv, ParteFiglia.Position, ParteFiglia.Rotation);
             }
         }
         Vector2 WorldPadreDir
         {
             get
             {
-                return Utils.TranslateAndRotate(LocalPadreDir, PartePadre.Position, PartePadre.Rotation);
+                return Coord.TranslateAndRotate(LocalPadreDir, PartePadre.Position, PartePadre.Rotation);
             }
         }
         Vector2 WorldPadreInv
         {
             get
             {
-                return Utils.TranslateAndRotate(LocalPadreInv, PartePadre.Position, PartePadre.Rotation);
+                return Coord.TranslateAndRotate(LocalPadreInv, PartePadre.Position, PartePadre.Rotation);
             }
         }
 
@@ -69,12 +69,12 @@ namespace ProveMotoreFisico
             switch (ParteFiglia.ConnectionSide)
             {
                 case Side.Right:
-                    Vector2 figlioRelativePadreUpperCorner = Utils.InvTranslateAndRotate(Utils.TranslateAndRotate(new Vector2(-PartePadre.BodySize.X / 2, PartePadre.BodySize.Y / 2), PartePadre.Position, PartePadre.Rotation), ParteFiglia.Position, ParteFiglia.Rotation);
-                    Vector2 figlioRelativePadreLowerCorner = Utils.InvTranslateAndRotate(Utils.TranslateAndRotate(new Vector2(-PartePadre.BodySize.X / 2, -PartePadre.BodySize.Y / 2), PartePadre.Position, PartePadre.Rotation), ParteFiglia.Position, ParteFiglia.Rotation);
+                    Vector2 figlioRelativePadreUpperCorner = Coord.InvTranslateAndRotate(Coord.TranslateAndRotate(new Vector2(-PartePadre.BodySize.X / 2, PartePadre.BodySize.Y / 2), PartePadre.Position, PartePadre.Rotation), ParteFiglia.Position, ParteFiglia.Rotation);
+                    Vector2 figlioRelativePadreLowerCorner = Coord.InvTranslateAndRotate(Coord.TranslateAndRotate(new Vector2(-PartePadre.BodySize.X / 2, -PartePadre.BodySize.Y / 2), PartePadre.Position, PartePadre.Rotation), ParteFiglia.Position, ParteFiglia.Rotation);
                     LocalFigliaDir.X = ParteFiglia.BodySize.X / 2;
                     LocalFigliaInv.X = ParteFiglia.BodySize.X / 2;
-                    Vector2 padreRelativeFiglioUpperCorner = Utils.InvTranslateAndRotate(Utils.TranslateAndRotate(new Vector2(ParteFiglia.BodySize.X / 2, ParteFiglia.BodySize.Y / 2), ParteFiglia.Position, ParteFiglia.Rotation), PartePadre.Position, PartePadre.Rotation);
-                    Vector2 padreRelativeFiglioLowerCorner = Utils.InvTranslateAndRotate(Utils.TranslateAndRotate(new Vector2(ParteFiglia.BodySize.X / 2, -ParteFiglia.BodySize.Y / 2), ParteFiglia.Position, ParteFiglia.Rotation), PartePadre.Position, PartePadre.Rotation);
+                    Vector2 padreRelativeFiglioUpperCorner = Coord.InvTranslateAndRotate(Coord.TranslateAndRotate(new Vector2(ParteFiglia.BodySize.X / 2, ParteFiglia.BodySize.Y / 2), ParteFiglia.Position, ParteFiglia.Rotation), PartePadre.Position, PartePadre.Rotation);
+                    Vector2 padreRelativeFiglioLowerCorner = Coord.InvTranslateAndRotate(Coord.TranslateAndRotate(new Vector2(ParteFiglia.BodySize.X / 2, -ParteFiglia.BodySize.Y / 2), ParteFiglia.Position, ParteFiglia.Rotation), PartePadre.Position, PartePadre.Rotation);
                     LocalPadreDir.X = -PartePadre.BodySize.X / 2;
                     LocalPadreInv.X = -PartePadre.BodySize.X / 2;
                     if (figlioRelativePadreUpperCorner.Y < (ParteFiglia.BodySize.Y / 2)) //l'angolo superiore più interno è quello della parte padre (ha la coordinata Y minore)
@@ -101,12 +101,12 @@ namespace ProveMotoreFisico
                     break;
                 case Side.Left:
                     //simmetrico al caso precedente, con PartePadre e ParteFiglia invertiti
-                    figlioRelativePadreUpperCorner = Utils.InvTranslateAndRotate(Utils.TranslateAndRotate(new Vector2(PartePadre.BodySize.X / 2, PartePadre.BodySize.Y / 2), PartePadre.Position, PartePadre.Rotation), ParteFiglia.Position, ParteFiglia.Rotation);
-                    figlioRelativePadreLowerCorner = Utils.InvTranslateAndRotate(Utils.TranslateAndRotate(new Vector2(PartePadre.BodySize.X / 2, -PartePadre.BodySize.Y / 2), PartePadre.Position, PartePadre.Rotation), ParteFiglia.Position, ParteFiglia.Rotation);
+                    figlioRelativePadreUpperCorner = Coord.InvTranslateAndRotate(Coord.TranslateAndRotate(new Vector2(PartePadre.BodySize.X / 2, PartePadre.BodySize.Y / 2), PartePadre.Position, PartePadre.Rotation), ParteFiglia.Position, ParteFiglia.Rotation);
+                    figlioRelativePadreLowerCorner = Coord.InvTranslateAndRotate(Coord.TranslateAndRotate(new Vector2(PartePadre.BodySize.X / 2, -PartePadre.BodySize.Y / 2), PartePadre.Position, PartePadre.Rotation), ParteFiglia.Position, ParteFiglia.Rotation);
                     LocalFigliaDir.X = -ParteFiglia.BodySize.X / 2;
                     LocalFigliaInv.X = -ParteFiglia.BodySize.X / 2;
-                    padreRelativeFiglioUpperCorner = Utils.InvTranslateAndRotate(Utils.TranslateAndRotate(new Vector2(-ParteFiglia.BodySize.X / 2, ParteFiglia.BodySize.Y / 2), ParteFiglia.Position, ParteFiglia.Rotation), PartePadre.Position, PartePadre.Rotation);
-                    padreRelativeFiglioLowerCorner = Utils.InvTranslateAndRotate(Utils.TranslateAndRotate(new Vector2(-ParteFiglia.BodySize.X / 2, -ParteFiglia.BodySize.Y / 2), ParteFiglia.Position, ParteFiglia.Rotation), PartePadre.Position, PartePadre.Rotation);
+                    padreRelativeFiglioUpperCorner = Coord.InvTranslateAndRotate(Coord.TranslateAndRotate(new Vector2(-ParteFiglia.BodySize.X / 2, ParteFiglia.BodySize.Y / 2), ParteFiglia.Position, ParteFiglia.Rotation), PartePadre.Position, PartePadre.Rotation);
+                    padreRelativeFiglioLowerCorner = Coord.InvTranslateAndRotate(Coord.TranslateAndRotate(new Vector2(-ParteFiglia.BodySize.X / 2, -ParteFiglia.BodySize.Y / 2), ParteFiglia.Position, ParteFiglia.Rotation), PartePadre.Position, PartePadre.Rotation);
                     LocalPadreDir.X = PartePadre.BodySize.X / 2;
                     LocalPadreInv.X = PartePadre.BodySize.X / 2;
                     if (figlioRelativePadreUpperCorner.Y < (ParteFiglia.BodySize.Y / 2))
@@ -133,12 +133,12 @@ namespace ProveMotoreFisico
                     break;
                 case Side.Top:
                     //simmetrico rispetto al case Side.Right, con X <-> Y, Right <-> Upper, Left <-> Lower
-                    Vector2 figlioRelativePadreRightCorner = Utils.InvTranslateAndRotate(Utils.TranslateAndRotate(new Vector2(PartePadre.BodySize.X / 2, PartePadre.BodySize.Y / 2), PartePadre.Position, PartePadre.Rotation), ParteFiglia.Position, ParteFiglia.Rotation);
-                    Vector2 figlioRelativePadreLeftCorner = Utils.InvTranslateAndRotate(Utils.TranslateAndRotate(new Vector2(-PartePadre.BodySize.X / 2, PartePadre.BodySize.Y / 2), PartePadre.Position, PartePadre.Rotation), ParteFiglia.Position, ParteFiglia.Rotation);
+                    Vector2 figlioRelativePadreRightCorner = Coord.InvTranslateAndRotate(Coord.TranslateAndRotate(new Vector2(PartePadre.BodySize.X / 2, PartePadre.BodySize.Y / 2), PartePadre.Position, PartePadre.Rotation), ParteFiglia.Position, ParteFiglia.Rotation);
+                    Vector2 figlioRelativePadreLeftCorner = Coord.InvTranslateAndRotate(Coord.TranslateAndRotate(new Vector2(-PartePadre.BodySize.X / 2, PartePadre.BodySize.Y / 2), PartePadre.Position, PartePadre.Rotation), ParteFiglia.Position, ParteFiglia.Rotation);
                     LocalFigliaDir.Y = -ParteFiglia.BodySize.Y / 2;
                     LocalFigliaInv.Y = -ParteFiglia.BodySize.Y / 2;
-                    Vector2 padreRelativeFiglioRightCorner = Utils.InvTranslateAndRotate(Utils.TranslateAndRotate(new Vector2(ParteFiglia.BodySize.X / 2, -ParteFiglia.BodySize.Y / 2), ParteFiglia.Position, ParteFiglia.Rotation), PartePadre.Position, PartePadre.Rotation);
-                    Vector2 padreRelativeFiglioLeftCorner = Utils.InvTranslateAndRotate(Utils.TranslateAndRotate(new Vector2(-ParteFiglia.BodySize.X / 2, -ParteFiglia.BodySize.Y / 2), ParteFiglia.Position, ParteFiglia.Rotation), PartePadre.Position, PartePadre.Rotation);
+                    Vector2 padreRelativeFiglioRightCorner = Coord.InvTranslateAndRotate(Coord.TranslateAndRotate(new Vector2(ParteFiglia.BodySize.X / 2, -ParteFiglia.BodySize.Y / 2), ParteFiglia.Position, ParteFiglia.Rotation), PartePadre.Position, PartePadre.Rotation);
+                    Vector2 padreRelativeFiglioLeftCorner = Coord.InvTranslateAndRotate(Coord.TranslateAndRotate(new Vector2(-ParteFiglia.BodySize.X / 2, -ParteFiglia.BodySize.Y / 2), ParteFiglia.Position, ParteFiglia.Rotation), PartePadre.Position, PartePadre.Rotation);
                     LocalPadreDir.Y = PartePadre.BodySize.Y / 2;
                     LocalPadreInv.Y = PartePadre.BodySize.Y / 2;
                     if (figlioRelativePadreRightCorner.X < (ParteFiglia.BodySize.X / 2))
@@ -165,12 +165,12 @@ namespace ProveMotoreFisico
                     break;
                 case Side.Bottom:
                     //simmetrico rispetto al caso Top, con PartePadre <-> ParteFiglia
-                    figlioRelativePadreRightCorner = Utils.InvTranslateAndRotate(Utils.TranslateAndRotate(new Vector2(PartePadre.BodySize.X / 2, -PartePadre.BodySize.Y / 2), PartePadre.Position, PartePadre.Rotation), ParteFiglia.Position, ParteFiglia.Rotation);
-                    figlioRelativePadreLeftCorner = Utils.InvTranslateAndRotate(Utils.TranslateAndRotate(new Vector2(-PartePadre.BodySize.X / 2, -PartePadre.BodySize.Y / 2), PartePadre.Position, PartePadre.Rotation), ParteFiglia.Position, ParteFiglia.Rotation);
+                    figlioRelativePadreRightCorner = Coord.InvTranslateAndRotate(Coord.TranslateAndRotate(new Vector2(PartePadre.BodySize.X / 2, -PartePadre.BodySize.Y / 2), PartePadre.Position, PartePadre.Rotation), ParteFiglia.Position, ParteFiglia.Rotation);
+                    figlioRelativePadreLeftCorner = Coord.InvTranslateAndRotate(Coord.TranslateAndRotate(new Vector2(-PartePadre.BodySize.X / 2, -PartePadre.BodySize.Y / 2), PartePadre.Position, PartePadre.Rotation), ParteFiglia.Position, ParteFiglia.Rotation);
                     LocalFigliaDir.Y = ParteFiglia.BodySize.Y / 2;
                     LocalFigliaInv.Y = ParteFiglia.BodySize.Y / 2;
-                    padreRelativeFiglioRightCorner = Utils.InvTranslateAndRotate(Utils.TranslateAndRotate(new Vector2(ParteFiglia.BodySize.X / 2, ParteFiglia.BodySize.Y / 2), ParteFiglia.Position, ParteFiglia.Rotation), PartePadre.Position, PartePadre.Rotation);
-                    padreRelativeFiglioLeftCorner = Utils.InvTranslateAndRotate(Utils.TranslateAndRotate(new Vector2(-ParteFiglia.BodySize.X / 2, ParteFiglia.BodySize.Y / 2), ParteFiglia.Position, ParteFiglia.Rotation), PartePadre.Position, PartePadre.Rotation);
+                    padreRelativeFiglioRightCorner = Coord.InvTranslateAndRotate(Coord.TranslateAndRotate(new Vector2(ParteFiglia.BodySize.X / 2, ParteFiglia.BodySize.Y / 2), ParteFiglia.Position, ParteFiglia.Rotation), PartePadre.Position, PartePadre.Rotation);
+                    padreRelativeFiglioLeftCorner = Coord.InvTranslateAndRotate(Coord.TranslateAndRotate(new Vector2(-ParteFiglia.BodySize.X / 2, ParteFiglia.BodySize.Y / 2), ParteFiglia.Position, ParteFiglia.Rotation), PartePadre.Position, PartePadre.Rotation);
                     LocalPadreDir.Y = -PartePadre.BodySize.Y / 2;
                     LocalPadreInv.Y = -PartePadre.BodySize.Y / 2;
                     if (figlioRelativePadreRightCorner.X < (ParteFiglia.BodySize.X / 2))
@@ -208,8 +208,8 @@ namespace ProveMotoreFisico
         /// <param name="zoomFactor">Fattore di zoom tra coordinate fisiche e grafiche</param>
         public void Draw(SpriteBatch spriteBatch, Color directColor, Color inverseColor, Texture2D rectTexture, float zoomFactor)
         {
-            DrawingHelper.DrawLine(spriteBatch, rectTexture, Utils.ToGraphics(WorldFiglioDir, zoomFactor), Utils.ToGraphics(WorldPadreDir, zoomFactor), directColor);
-            DrawingHelper.DrawLine(spriteBatch, rectTexture, Utils.ToGraphics(WorldFiglioInv, zoomFactor), Utils.ToGraphics(WorldPadreInv, zoomFactor), inverseColor);
+            DrawingHelper.DrawLine(spriteBatch, rectTexture, Coord.ToGraphics(WorldFiglioDir, zoomFactor), Coord.ToGraphics(WorldPadreDir, zoomFactor), directColor);
+            DrawingHelper.DrawLine(spriteBatch, rectTexture, Coord.ToGraphics(WorldFiglioInv, zoomFactor), Coord.ToGraphics(WorldPadreInv, zoomFactor), inverseColor);
         }
 
         /// <summary>

@@ -76,6 +76,12 @@ namespace ProveMotoreFisico
             trd.Start();
         }
 
+        /*protected override void OnExiting(object sender, EventArgs args)
+        {
+            client.Close();
+            base.OnExiting(sender, args);
+        }*/
+
         /// <summary>
         /// Allows the game to perform any initialization it needs to before starting to run.
         /// This is where it can query for any required services and load any non-graphic
@@ -94,7 +100,7 @@ namespace ProveMotoreFisico
             world = new World(new Vector2(0, Const.Gravity));
             rectTexture = RectangularTexture(graphics.GraphicsDevice, 1000, 1000, Color.White);
 
-            floor = FixtureFactory.CreateRectangle(world, Const.FloorWidth, Const.FloorHeigh, 0.1f, new Vector2(0, Const.FloorYPosition));
+            floor = FixtureFactory.CreateRectangle(world, floorSize.X, floorSize.Y, 0.1f, floorPosition);
             floor.Body.BodyType = BodyType.Static;
             floor.Restitution = 0.2f;
             floor.Friction = 0.3f;
@@ -112,8 +118,6 @@ namespace ProveMotoreFisico
             //
 
             partList = new List<FParte>();
-            /*FParte parteProva = new FParte(new Vector2(10, 20), Vector2.Zero, Const.PartDensity, world, Color.Green, Color.Green);
-            partList.Add(parteProva);*/
             base.Initialize();
         }
 
@@ -218,20 +222,16 @@ namespace ProveMotoreFisico
                 if (!drawingPart && (mCurrentState.LeftButton == ButtonState.Pressed) && (mPreviousState.LeftButton == ButtonState.Released))
                     foreach (FParte parte in partList)
                     {
-                        /*
                         Vector2 partRelativeMousePos = Coord.InvTranslateAndRotate(mousePos, Coord.ToGraphics(parte.Position, Const.Zoom), parte.Rotation);
-                        if ((Math.Abs(partRelativeMousePos.X) <= Coord.ToGraphics(parte.BodySize).X) && (Math.Abs(partRelativeMousePos.Y) <= Coord.ToGraphics(parte.BodySize).Y))
-                            selectedPart = parte;
-                         * */
-                        if (parte.TestPoint(Utils.ToPhysics(mousePos)))
+                        if ((Math.Abs(partRelativeMousePos.X) <= Coord.ToGraphics(parte.BodySize, Const.Zoom).X) && (Math.Abs(partRelativeMousePos.Y) <= Coord.ToGraphics(parte.BodySize, Const.Zoom).Y))
                             selectedPart = parte;
                     }
                 if (selectedPart != null) //se è stata selezionata una parte tenta di calcolare partRelativeMouseProjection
                 {
                     //coordinate del mouse rispetto al sistema di riferimento della parte
-                    partRelativeMouseProjection = Utils.InvTranslateAndRotate(mousePos, Utils.ToGraphics(selectedPart.Position, Const.Zoom), selectedPart.Rotation);
+                    partRelativeMouseProjection = Coord.InvTranslateAndRotate(mousePos, Coord.ToGraphics(selectedPart.Position, Const.Zoom), selectedPart.Rotation);
                     //passa in coordinate fisiche (per evitare di effettuare molte più conversioni in coordinate grafiche
-                    partRelativeMouseProjection = Utils.ToPhysics(partRelativeMouseProjection, Const.Zoom);
+                    partRelativeMouseProjection = Coord.ToPhysics(partRelativeMouseProjection, Const.Zoom);
                     //verifica se il mouse è in corrispondenza di uno dei lati della parte e, in caso affermativo, aggiorna il vettore
                     //con la proiezione della posizione del mouse sul bordo della creatura (altrimenti non la modifica)
                     if ((partRelativeMouseProjection.X < 0) && (Math.Abs(partRelativeMouseProjection.Y) <= (selectedPart.BodySize.Y / 2)))
@@ -261,14 +261,14 @@ namespace ProveMotoreFisico
                     else
                         onSide = false;
                     //torna in coordinate grafiche
-                    partRelativeMouseProjection = Utils.ToGraphics(partRelativeMouseProjection, Const.Zoom);
+                    partRelativeMouseProjection = Coord.ToGraphics(partRelativeMouseProjection, Const.Zoom);
                 }
                 //verifica se il mouse si trova o meno all'interno di una parte e aggiorna noCollision
                 noCollision = true;
                 foreach (FParte parte in partList)
                 {
-                    Vector2 partRelativeMousePos = Utils.InvTranslateAndRotate(mousePos, Utils.ToGraphics(parte.Position, Const.Zoom), parte.Rotation);
-                    if ((Math.Abs(partRelativeMousePos.X) <= (Utils.ToGraphics(parte.BodySize, Const.Zoom).X / 2)) && (Math.Abs(partRelativeMousePos.Y) <= (Utils.ToGraphics(parte.BodySize, Const.Zoom).Y) / 2))
+                    Vector2 partRelativeMousePos = Coord.InvTranslateAndRotate(mousePos, Coord.ToGraphics(parte.Position, Const.Zoom), parte.Rotation);
+                    if ((Math.Abs(partRelativeMousePos.X) <= (Coord.ToGraphics(parte.BodySize, Const.Zoom).X / 2)) && (Math.Abs(partRelativeMousePos.Y) <= (Coord.ToGraphics(parte.BodySize, Const.Zoom).Y) / 2))
                     {
                         noCollision = false;
                         break;
@@ -284,7 +284,7 @@ namespace ProveMotoreFisico
                         if (kCurrentState.IsKeyDown(Keys.Space) && kPreviousState.IsKeyUp(Keys.Space) && (mCurrentState.Y <= (Const.ScreenHeigh - Const.ControlsAreaHeigh)))
                         {
                             //creazione di un blocco inizialmente fermo nella posizione attuale del mouse, premendo spazio
-                            Fixture newBlock = FixtureFactory.CreateRectangle(world, rectangleSize.X, rectangleSize.Y, 0.01f, Utils.ToPhysics(mousePos, Const.Zoom));
+                            Fixture newBlock = FixtureFactory.CreateRectangle(world, rectangleSize.X, rectangleSize.Y, 0.01f, Coord.ToPhysics(mousePos, Const.Zoom));
                             newBlock.Body.BodyType = BodyType.Dynamic;
                             newBlock.Restitution = 0.4f;
                             newBlock.Friction = 0.3f;
@@ -293,14 +293,14 @@ namespace ProveMotoreFisico
                         if ((mCurrentState.LeftButton == ButtonState.Pressed) && (mPreviousState.LeftButton == ButtonState.Released) && (mCurrentState.Y <= (Const.ScreenHeigh - Const.ControlsAreaHeigh)))
                         {
                             //punto di rilascio del blocco con velocità iniziale non nulla e punto d'inizio del vettore immaginario che ne definisce il vettore velocità
-                            start = Utils.ToPhysics(mousePos, Const.Zoom);
+                            start = Coord.ToPhysics(mousePos, Const.Zoom);
                             started = true;
                         }
                         else if ((mCurrentState.LeftButton == ButtonState.Released) && (mPreviousState.LeftButton == ButtonState.Pressed) && started)
                         {
                             //ho rilasciato il mouse sx -> crea il blocco
                             started = false;
-                            end = Utils.ToPhysics(mousePos, Const.Zoom);
+                            end = Coord.ToPhysics(mousePos, Const.Zoom);
                             Fixture newBlock = FixtureFactory.CreateRectangle(world, rectangleSize.X, rectangleSize.Y, Const.PartDensity, new Vector2(start.X, start.Y));
                             newBlock.Body.BodyType = BodyType.Dynamic;
                             newBlock.Restitution = 0.4f;
@@ -347,8 +347,8 @@ namespace ProveMotoreFisico
                         {
                             //ho appena rilasciato il tasto sx e stavo creando una nuova parte -> la crea
                             drawingPart = false;
-                            Vector2 partSize = Utils.ToPhysics(new Vector2(partWhileDrawed.Width, partWhileDrawed.Height), Const.Zoom);
-                            Vector2 partPosition = Utils.ToPhysics(new Vector2(partWhileDrawed.Center.X, partWhileDrawed.Center.Y), Const.Zoom);
+                            Vector2 partSize = Coord.ToPhysics(new Vector2(partWhileDrawed.Width, partWhileDrawed.Height), Const.Zoom);
+                            Vector2 partPosition = Coord.ToPhysics(new Vector2(partWhileDrawed.Center.X, partWhileDrawed.Center.Y), Const.Zoom);
                             if ((partSize.X >= 0.05f) && (partSize.Y >= 0.05f)) //crea la parte solo se è sufficientemente grande, per evitare di causare blocchi del programma
                             {
                                 FParte newPart = new FParte(partSize, partPosition, Const.PartDensity, world, Color.Blue, Color.White);
@@ -357,6 +357,7 @@ namespace ProveMotoreFisico
                                 else
                                     newPart.BodyType = BodyType.Static;
                                 partList.Add(newPart);
+                                newPart.BodyFixture.OnCollision = new OnCollisionEventHandler(gestione_evento);
                             }
                         }
                         #endregion
@@ -377,37 +378,37 @@ namespace ProveMotoreFisico
                                 else if (noCollision && creatingJoint)
                                 {
                                     //il mouse è ancora premuto, quindi sto trascinando per determinare la dimensione del giunto
-                                    Vector2 relMousePos = Utils.InvTranslateAndRotate(mousePos, Utils.ToGraphics(part1.Position, Const.Zoom), part1.Rotation);
-                                    Vector2 relMousePosPhysics = Utils.ToPhysics(relMousePos, Const.Zoom);
-                                    Vector2 part1JointPosPhysics = Utils.ToPhysics(part1JointPos, Const.Zoom);
+                                    Vector2 relMousePos = Coord.InvTranslateAndRotate(mousePos, Coord.ToGraphics(part1.Position, Const.Zoom), part1.Rotation);
+                                    Vector2 relMousePosPhysics = Coord.ToPhysics(relMousePos, Const.Zoom);
+                                    Vector2 part1JointPosPhysics = Coord.ToPhysics(part1JointPos, Const.Zoom);
                                     if ((projectionSide == Side.Right) && (relMousePosPhysics.X > (part1.BodySize.X / 2)))
                                     {   //bordo destro della parte
                                         jointRadius = relMousePos.X - part1JointPos.X;
                                         if (jointRadius < 0.05f) //per evitare dimensioni nulle o negative
                                             jointRadius = 0.05f;
                                         //centro del giunto in coordinate grafiche e assolute
-                                        jointCenter = Utils.TranslateAndRotate(part1JointPos + new Vector2(jointRadius, 0), Utils.ToGraphics(part1.Position, Const.Zoom), part1.Rotation);
+                                        jointCenter = Coord.TranslateAndRotate(part1JointPos + new Vector2(jointRadius, 0), Coord.ToGraphics(part1.Position, Const.Zoom), part1.Rotation);
                                     }
                                     else if ((projectionSide == Side.Left) && (relMousePosPhysics.X < -(part1.BodySize.X / 2)))
                                     {   //bordo sinistro della parte
                                         jointRadius = part1JointPos.X - relMousePos.X;
                                         if (jointRadius < 0.05f)
                                             jointRadius = 0.05f;
-                                        jointCenter = Utils.TranslateAndRotate(part1JointPos - new Vector2(jointRadius, 0), Utils.ToGraphics(part1.Position, Const.Zoom), part1.Rotation);
+                                        jointCenter = Coord.TranslateAndRotate(part1JointPos - new Vector2(jointRadius, 0), Coord.ToGraphics(part1.Position, Const.Zoom), part1.Rotation);
                                     }
                                     else if ((projectionSide == Side.Bottom) && (relMousePosPhysics.Y > (part1.BodySize.Y / 2)))
                                     {   //bordo inferiore della parte
                                         jointRadius = relMousePos.Y - part1JointPos.Y;
                                         if (jointRadius < 0.05f)
                                             jointRadius = 0.05f;
-                                        jointCenter = Utils.TranslateAndRotate(part1JointPos + new Vector2(0, jointRadius), Utils.ToGraphics(part1.Position, Const.Zoom), part1.Rotation);
+                                        jointCenter = Coord.TranslateAndRotate(part1JointPos + new Vector2(0, jointRadius), Coord.ToGraphics(part1.Position, Const.Zoom), part1.Rotation);
                                     }
                                     else if ((projectionSide == Side.Top) && (relMousePosPhysics.Y < -(part1.BodySize.Y / 2)))
                                     {   //bordo superiore della parte
                                         jointRadius = part1JointPos.Y - relMousePos.Y;
                                         if (jointRadius < 0.05f)
                                             jointRadius = 0.05f;
-                                        jointCenter = Utils.TranslateAndRotate(part1JointPos - new Vector2(0, jointRadius), Utils.ToGraphics(part1.Position, Const.Zoom), part1.Rotation);
+                                        jointCenter = Coord.TranslateAndRotate(part1JointPos - new Vector2(0, jointRadius), Coord.ToGraphics(part1.Position, Const.Zoom), part1.Rotation);
                                     }
                                 }
                             }
@@ -420,8 +421,8 @@ namespace ProveMotoreFisico
                         }   //-> pendingJoint è true -> il giunto è già stato creato, occorre scegliere la seconda parte
                         else if ((mCurrentState.RightButton == ButtonState.Pressed) && (mCurrentState.Y <= (Const.ScreenHeigh - Const.ControlsAreaHeigh)) && !moving && (mPreviousState.RightButton == ButtonState.Released) && onSide && (selectedPart != part1))
                         {
-                            Vector2 part2JointPosPhysics = Utils.ToPhysics(partRelativeMouseProjection, Const.Zoom);
-                            Vector2 part1JointPosPhysics = Utils.ToPhysics(part1JointPos, Const.Zoom);
+                            Vector2 part2JointPosPhysics = Coord.ToPhysics(partRelativeMouseProjection, Const.Zoom);
+                            Vector2 part1JointPosPhysics = Coord.ToPhysics(part1JointPos, Const.Zoom);
                             selectedPart.Join(part1, part2JointPosPhysics, part1JointPosPhysics, Color.Aqua, jointRadius / Const.Zoom);
                             pendingJoint = false;
                         }
@@ -443,9 +444,6 @@ namespace ProveMotoreFisico
                     else
                         selectedPart.ApplyMotion(0.0f);
                 }
-
-                foreach (FParte part in partList)
-                    part.UpdateCollisionPoints();
             }
 
             world.Step((float)gameTime.ElapsedGameTime.TotalMilliseconds / 1000);
@@ -475,12 +473,7 @@ namespace ProveMotoreFisico
             foreach (FParte part in partList)
             {
                 if (part == selectedPart)
-                {
                     part.Draw(spriteBatch, rectTexture, circTexture, Const.Zoom, Color.Yellow, Color.Yellow);
-                    if (selectedPart.Collisions.Count > 0)
-                        foreach (Collision col in selectedPart.Collisions)
-                            DrawingHelper.DrawPoint(spriteBatch, rectTexture, Utils.ToGraphics(col.Position), 4, Color.Purple);
-                }
                 else
                     part.Draw(spriteBatch, rectTexture, circTexture, Const.Zoom);
             }
@@ -492,7 +485,7 @@ namespace ProveMotoreFisico
             //disegna il cursore sul bordo della parte selezionata
             if ((partList.Count >= 1) && (selectedPart != null))
             {
-                DrawingHelper.DrawPoint(spriteBatch, rectTexture, Utils.TranslateAndRotate(partRelativeMouseProjection, Utils.ToGraphics(selectedPart.Position, Const.Zoom), selectedPart.Rotation), 4, Color.Red);
+                spriteBatch.Draw(rectTexture, Coord.TranslateAndRotate(partRelativeMouseProjection, Coord.ToGraphics(selectedPart.Position, Const.Zoom), selectedPart.Rotation), new Rectangle(0, 0, 4, 4), Color.Red, 0f, new Vector2(2, 2), 1f, SpriteEffects.None, 0);
                 if(selectedPart.Joint != null)
                     if(muscoli)
                         spriteBatch.DrawString(arial, "MaxForcePerAreaUnit: " + selectedPart.PartActuator.MaxForce.ToString(), new Vector2(0, 40), Color.White);
@@ -510,6 +503,8 @@ namespace ProveMotoreFisico
             spriteBatch.Begin();
             spriteBatch.Draw(rectTexture, new Vector2(0, Const.ScreenHeigh - Const.ControlsAreaHeigh), new Rectangle(0, 0, Const.ScreenWidth, Const.ControlsAreaHeigh), Color.Gray, 0.0f, Vector2.Zero, 1.0f, SpriteEffects.None, 0);
             spriteBatch.End();
+
+            
 
             base.Draw(gameTime);
         }
@@ -752,7 +747,14 @@ namespace ProveMotoreFisico
         return;
         }
 
-        
 
+
+
+        public bool gestione_evento(Fixture f1, Fixture f2, Contact contact)
+        {
+            string stringa = contact.ToString();
+            
+            return true;
+        }
     }
 }
