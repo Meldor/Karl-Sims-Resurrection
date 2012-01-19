@@ -527,7 +527,6 @@ namespace KSR_libraryRN
             assoni = new List<AssoneG>(g.assoni);
             neuroni = new SortedList<int, NeuroneG>(g.neuroni);
             neuroniInput = new List<NeuroneG>(g.neuroniInput);
-            neuroniOutput = new List<NeuroneG>(g.neuroniOutput);
         }
 
         public void addAssone(AssoneG a)
@@ -571,15 +570,13 @@ namespace KSR_libraryRN
 
         public bool contieneNeuroneID(int n)
         {
-            return (neuroni.IndexOfKey(n) >= 0);
-                
-            //NeuroneG[] neuroniVector = neuroni.Values.ToArray();
-            //bool trovato = false;
+            NeuroneG[] neuroniVector = neuroni.Values.ToArray();
+            bool trovato = false;
 
-            //for (int i = 0; i < neuroni.Count && !trovato; i++)
-            //    if (neuroniVector[i].idNEAT == n)
-            //        trovato = true;
-            //return trovato; 
+            for (int i = 0; i < neuroni.Count && !trovato; i++)
+                if (neuroniVector[i].idNEAT == n)
+                    trovato = true;
+            return trovato; 
         }
        
     }

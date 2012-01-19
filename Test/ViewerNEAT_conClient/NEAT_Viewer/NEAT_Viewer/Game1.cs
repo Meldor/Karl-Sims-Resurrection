@@ -44,13 +44,8 @@ namespace NEAT_Viewer
             IsMouseVisible = true;
             GestoreRN_NEAT gestore = new GestoreRN_NEAT(3, 2);
             GenotipoRN genotipo = gestore.getPerceptron();
-            //genotipo.addNeurone(new GenotipoRN.NeuroneG(5, 0));
-            //genotipo.addAssone(new GenotipoRN.AssoneG(7, 0, 5, 0));
-            //genotipo.addAssone(new GenotipoRN.AssoneG(8, 5, 4, 0));
-            //genotipo.addAssone(new GenotipoRN.AssoneG(9, 5, 5, 0));
             GenotipoRN g_mutato = gestore.mutazioneAggiungiNeurone(genotipo);
-            for(int i = 0; i < 5; i++)
-                g_mutato = gestore.mutazioneAggiungiNeurone(g_mutato);
+            g_mutato = gestore.mutazioneAggiungiNeurone(g_mutato);
             grafo = new GrafoDisegno(g_mutato);
 
             base.Initialize();
@@ -62,8 +57,10 @@ namespace NEAT_Viewer
         /// </summary>
         protected override void LoadContent()
         {
+            // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
             circTexture = Content.Load<Texture2D>("cerchio");
+            // TODO: use this.Content to load your game content here
         }
 
         /// <summary>
@@ -99,7 +96,7 @@ namespace NEAT_Viewer
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
             spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend);
-            grafo.Draw(spriteBatch, circTexture, rectTexture, Color.Yellow, Color.Black);
+            grafo.Draw(spriteBatch, circTexture, rectTexture, Color.Yellow);
             //DrawingHelper.DrawSpline(spriteBatch, rectTexture, Color.Black, new Vector2(100,100), new Vector2(0, -50), new Vector2(150, 50), new Vector2(50, 0), 4);
             spriteBatch.End();
 
