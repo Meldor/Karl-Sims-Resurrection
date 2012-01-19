@@ -7,7 +7,7 @@ using System.Collections;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-using KSR_libraryRN;
+using LibreriaRN;
 
 namespace NEAT_Viewer
 {
@@ -16,7 +16,7 @@ namespace NEAT_Viewer
     /// ricalcolare ad ogni ciclo. Gli archi sono memorizzati all'interno di ogni nodo, cioè ogni nodo contiene gli archi
     /// verso i nodi a cui è collegato; è per rendere più semplice la visita del grafo.
     /// </summary>
-    class GrafoDisegno
+    public class GrafoDisegno
     {
         //la chiave di ordinamento è il NEAT_id
         SortedList<int, Nodo> nodi;

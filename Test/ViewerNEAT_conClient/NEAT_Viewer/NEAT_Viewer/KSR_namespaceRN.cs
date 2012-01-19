@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -427,10 +428,26 @@ namespace KSR_libraryRN
 
     }
 
-   
+    class Utilita
+    {
+        public static String RandomString(int size, bool lowerCase)
+        {
+            StringBuilder builder = new StringBuilder();
+            Random random = new Random();
+            char ch;
+            for (int i = 0; i < size; i++)
+            {
+                ch = Convert.ToChar(Convert.ToInt32(Math.Floor(26 * random.NextDouble() + 65)));
+                builder.Append(ch);
+            }
+            if (lowerCase)
+                return builder.ToString().ToLower();
+            return builder.ToString();
+        }
+    }
 
-  
 
+    [Serializable]
     class GenotipoRN : IComparable<GenotipoRN>
     {
         public struct NeuroneG : IComparable<NeuroneG>
@@ -447,7 +464,7 @@ namespace KSR_libraryRN
             public int GetId()
             { return idNEAT; }
 
-           
+
             public int CompareTo(NeuroneG other)
             {
                 return idNEAT - other.idNEAT;
@@ -468,7 +485,7 @@ namespace KSR_libraryRN
                 this.output = output;
                 this.peso = peso;
                 attivo = 1;
-                
+
             }
 
             public int GetId()
@@ -494,36 +511,38 @@ namespace KSR_libraryRN
 
             public bool testaCollegamento(int input, int output)
             { return (this.input == input && this.output == output); }
-         
+
 
             public String toString()
-            { return "ID: " + idNEAT+ " -> " + input + " - " + output + " Peso "+ peso +  " Attivo: " + attivo; }
+            { return "ID: " + idNEAT + " -> " + input + " - " + output + " Peso " + peso + " Attivo: " + attivo; }
 
 
 
             public int CompareTo(AssoneG other)
-            {  return idNEAT - other.idNEAT;     }
+            { return idNEAT - other.idNEAT; }
         }
 
         public int t;
         public List<AssoneG> assoni;
-        public SortedList<int,NeuroneG> neuroni;
+        public SortedList<int, NeuroneG> neuroni;
         public ICollection<NeuroneG> neuroniInput;
         public ICollection<NeuroneG> neuroniOutput;
+        public String nome;
 
         public GenotipoRN()
         {
             t = -1;
             assoni = new List<AssoneG>();
-            neuroni = new SortedList<int,NeuroneG>();
+            neuroni = new SortedList<int, NeuroneG>();
             neuroniInput = new List<NeuroneG>();
             neuroniOutput = new List<NeuroneG>();
+            nome = Utilita.RandomString(5, false);
         }
 
         public GenotipoRN(GenotipoRN g)
         {
-            
-            t = g.t+1;
+
+            t = g.t + 1;
             assoni = new List<AssoneG>(g.assoni);
             neuroni = new SortedList<int, NeuroneG>(g.neuroni);
             neuroniInput = new List<NeuroneG>(g.neuroniInput);
@@ -562,7 +581,12 @@ namespace KSR_libraryRN
             foreach (AssoneG a in assoni)
                 s += a.toString() + "\n";
             return s;
-            
+
+        }
+
+        public String firma()
+        {
+            return nome;
         }
 
         public int CompareTo(GenotipoRN other)
@@ -576,9 +600,9 @@ namespace KSR_libraryRN
             for (int i = 0; i < neuroni.Count && !trovato; i++)
                 if (neuroniVector[i].idNEAT == n)
                     trovato = true;
-            return trovato; 
+            return trovato;
         }
-       
+
     }
 
     class FenotipoRN

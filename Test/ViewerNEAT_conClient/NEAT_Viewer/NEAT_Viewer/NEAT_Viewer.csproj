@@ -121,6 +121,10 @@
     <Content Include="GameThumbnail.png" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\TestNEAT_conClient\LibreriaRN\LibreriaRN.csproj">
+      <Project>{645DECE6-1CF5-44A0-8006-1ED0AEAE050C}</Project>
+      <Name>LibreriaRN</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NEAT_ViewerContent\NEAT_ViewerContent.contentproj">
       <Name>NEAT_ViewerContent</Name>
       <XnaReferenceType>Content</XnaReferenceType>

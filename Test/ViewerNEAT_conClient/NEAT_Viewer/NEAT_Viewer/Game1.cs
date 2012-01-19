@@ -9,7 +9,20 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 
-using KSR_libraryRN;
+using LibreriaRN;
+
+using System.Runtime;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters;
+using System.Runtime.Serialization.Formatters.Binary;
+
+using System.IO;
+
+using System.Net;
+using System.Net.Sockets;
+using System.Threading;
+
+using System.Runtime.InteropServices;
 
 namespace NEAT_Viewer
 {
@@ -25,11 +38,16 @@ namespace NEAT_Viewer
         Texture2D rectTexture;
 
         GrafoDisegno grafo;
+        Thread trd;
 
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+
+            trd = new Thread(new ThreadStart(this.ServerMethod));
+            trd.IsBackground = true;
+            trd.Start();
         }
 
         /// <summary>
@@ -102,5 +120,67 @@ namespace NEAT_Viewer
 
             base.Draw(gameTime);
         }
+
+        private void ServerMethod()
+        {
+            TcpListener server = null;
+            NetworkStream stream = null;
+            TcpClient client = null;
+            Int32 port = 13001, i;
+            IPAddress localAddr = IPAddress.Parse("127.0.0.1");
+            bool fine = false;
+            Byte[] bytes = new Byte[256];
+            String data = null;
+            //Thread trdBB;
+
+            server = new TcpListener(localAddr, port);
+            server.Start();
+
+            while (true)
+            {
+                fine = false;
+                client = server.AcceptTcpClient();
+                stream = client.GetStream();
+
+
+                while (!fine)
+                    if ((i = stream.Read(bytes, 0, bytes.Length)) != 0) //legge fino a 256 caratteri dallo stream di rete
+                    {
+                        data = System.Text.Encoding.ASCII.GetString(bytes, 0, i); // interpreta lo stream a blocchi di 1Byte cod.ASCII
+                        data.ToLower();
+                        /* Qui si mettono i comandi a cui risponde il server */
+
+                        if (data == "IRN")
+                        {
+                            //data = "Inizio Ricezione";
+
+                            GenotipoRN g = LibreriaRN.GenotipoRN.receiveNetwork(stream);
+                            grafo = new GrafoDisegno(g);
+                            data = "Ricezione rete neurale avvenuta\n";
+                        }
+                        
+                        else if (data == "exit" || data == "quit")
+                        {
+                            fine = true;
+                            data = "Server disconnesso...\n";
+                        }
+                        else
+                            data = data.ToUpper();
+
+                        byte[] msg = System.Text.Encoding.ASCII.GetBytes(data);
+                        stream.Write(msg, 0, msg.Length);
+                    }
+
+                // Shutdown and end connection
+                if (fine)
+                    System.Threading.Thread.Sleep(50); //Aspetta che il client legga
+
+                client.Close();
+
+            }
+        }
     }
+
+
+   
 }
