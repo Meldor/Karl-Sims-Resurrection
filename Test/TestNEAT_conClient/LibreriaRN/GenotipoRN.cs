@@ -105,6 +105,7 @@ namespace LibreriaRN
             assoni = new List<AssoneG>(g.assoni);
             neuroni = new SortedList<int, NeuroneG>(g.neuroni);
             neuroniInput = new List<NeuroneG>(g.neuroniInput);
+            neuroniOutput = new List<NeuroneG>(g.neuroniOutput);
             nome = Utilita.RandomString(5, false);
         }
 
