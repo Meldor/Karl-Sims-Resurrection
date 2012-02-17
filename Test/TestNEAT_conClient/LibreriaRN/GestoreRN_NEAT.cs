@@ -34,14 +34,22 @@ namespace LibreriaRN
             for (int i = 0; i < output; i++)
                 p.addNeuroneOutput(new GenotipoRN.NeuroneG(contNeuroni++, 0));
                        
-            for (int i = 0; i < (input * output); i++)
-            {
-                int I = i % input;
-                int O = i % output + input;
-                double peso = generatoreCasuale.NextDouble();
-                p.addAssone(new GenotipoRN.AssoneG(contAssoni, I, O, 1 - 2 * peso));
-                contAssoni++;
-            }
+            //for (int i = 0; i < (input * output); i++)
+            //{
+            //    int I = i % input;
+            //    int O = i % output + input;
+            //    double peso = generatoreCasuale.NextDouble();
+            //    p.addAssone(new GenotipoRN.AssoneG(contAssoni, I, O, 1 - 2 * peso));
+            //    contAssoni++;
+            //}
+
+            for(int i = 0; i < input; i++)
+                for (int j = 0; j < output; j++)
+                {
+                    double peso = generatoreCasuale.NextDouble();
+                    p.addAssone(new GenotipoRN.AssoneG(contAssoni, i, j+input, 1 - 2 * peso));
+                    contAssoni++;
+                }
 
             genotipi.Add(p);
         }

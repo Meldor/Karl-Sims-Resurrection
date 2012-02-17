@@ -1,0 +1,24 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PoleBalancing", "PoleBalancing\PoleBalancing\PoleBalancing.csproj", "{AD95C22A-7D96-4FA4-BAC0-40605DB408A0}"
+EndProject
+Project("{96E2B04D-8817-42C6-938A-82C39BA4D311}") = "PoleBalancingContent", "PoleBalancing\PoleBalancingContent\PoleBalancingContent.contentproj", "{EDA5E6D8-EB03-48A0-BF84-86F62B2808A5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AD95C22A-7D96-4FA4-BAC0-40605DB408A0}.Debug|x86.ActiveCfg = Debug|x86
+		{AD95C22A-7D96-4FA4-BAC0-40605DB408A0}.Debug|x86.Build.0 = Debug|x86
+		{AD95C22A-7D96-4FA4-BAC0-40605DB408A0}.Release|x86.ActiveCfg = Release|x86
+		{AD95C22A-7D96-4FA4-BAC0-40605DB408A0}.Release|x86.Build.0 = Release|x86
+		{EDA5E6D8-EB03-48A0-BF84-86F62B2808A5}.Debug|x86.ActiveCfg = Debug|x86
+		{EDA5E6D8-EB03-48A0-BF84-86F62B2808A5}.Release|x86.ActiveCfg = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

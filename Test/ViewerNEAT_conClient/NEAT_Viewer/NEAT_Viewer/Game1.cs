@@ -114,7 +114,7 @@ namespace NEAT_Viewer
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
             spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend);
-            grafo.Draw(spriteBatch, circTexture, rectTexture, Color.Yellow);
+            grafo.Draw(spriteBatch, circTexture, rectTexture, Color.Yellow, Color.Black);
             //DrawingHelper.DrawSpline(spriteBatch, rectTexture, Color.Black, new Vector2(100,100), new Vector2(0, -50), new Vector2(150, 50), new Vector2(50, 0), 4);
             spriteBatch.End();
 
