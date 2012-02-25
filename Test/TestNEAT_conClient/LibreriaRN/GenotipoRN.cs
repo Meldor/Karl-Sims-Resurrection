@@ -14,42 +14,95 @@ namespace LibreriaRN
         [Serializable]
         public struct NeuroneG : IComparable<NeuroneG>
         {
-            public int idNEAT;
-            int tipo;
-
-            public NeuroneG(int idNEAT, int tipo)
+            public int neatID
             {
-                this.idNEAT = idNEAT;
-                this.tipo = tipo;
+                get { return _neatID; }
+            }
+            private int _neatID;
+            public TipoNeurone tipo
+            {
+                get { return _tipo; }
+            }
+            TipoNeurone _tipo;
+            public thresholdFunction threshold
+            {
+                get { return _threshold; }
+            }
+            thresholdFunction _threshold;
+
+            #region Costruttori
+
+            public NeuroneG(int idNEAT, TipoNeurone tipo, thresholdFunction threshold)
+            {
+                _neatID = idNEAT;
+                _tipo = tipo;
+                if (Params.transparentInput && tipo == TipoNeurone.NSensor)
+                    _threshold = Threshold.Transparent;
+                else
+                    _threshold = threshold;
             }
 
-            public int GetId()
-            { return idNEAT; }
+            public NeuroneG(int idNEAT, TipoNeurone tipo)
+            {
+                _neatID = idNEAT;
+                _tipo = tipo;
+                if (Params.transparentInput && tipo == TipoNeurone.NSensor)
+                    _threshold = Threshold.Transparent;
+                else
+                    _threshold = Threshold.getRandomDelegate();
+            }
+
+            #endregion
 
             public int CompareTo(NeuroneG other)
-            { return idNEAT - other.idNEAT; }
+            { return neatID - other.neatID; }
+
+            public string ToString()
+            {
+                string output = "ID=" + neatID;
+                switch (tipo)
+                {
+                    case TipoNeurone.NActuator:
+                        output += " Act ";
+                        break;
+                    case TipoNeurone.NHide:
+                        output += " Hid ";
+                        break;
+                    case TipoNeurone.NSensor:
+                        output += " Sen ";
+                        break;
+                }
+                return output;
+            }
         }
 
         [Serializable]
         public struct AssoneG : IComparable<AssoneG>
         {
-            int idNEAT;
-            int input;
-            int output;
-            double peso;
+            public int neatID
+            { get { return _neatID; } }
+            private int _neatID;
+            public int input
+            { get { return _input; } }
+            private int _input;
+            public int output
+            { get { return _output; } }
+            private int _output;
+            public double peso
+            { get { return _peso; } }
+            private double _peso;
             public int attivo;
 
             public AssoneG(int idNEAT, int input, int output, double peso)
             {
-                this.idNEAT = idNEAT;
-                this.input = input;
-                this.output = output;
-                this.peso = peso;
+                _neatID = idNEAT;
+                _input = input;
+                _output = output;
+                _peso = peso;
                 attivo = 1;
             }
 
-            public int GetId()
-            { return idNEAT; }
+            #region Modifiche
 
             public void attiva()
             { this.attivo = 1; }
@@ -57,37 +110,56 @@ namespace LibreriaRN
             public void disattiva()
             { this.attivo = 0; }
 
-            public int getInput()
-            { return input; }
-
-            public int getOutput()
-            { return output; }
-
-            public double getPeso()
-            { return peso; }
-
             public void modPeso(double p)
-            { peso += p; }
+            { 
+                _peso += p;
+                if (_peso > 1)
+                    _peso = 1;
+                else if (_peso < -1)
+                    _peso = -1;
+            }
 
             public void raddoppia()
-            { peso *= 2; }
+            { 
+                _peso *= 2;
+                if (_peso > 1)
+                    _peso = 1;
+                else if (_peso < -1)
+                    _peso = -1;
+            }
+
+            #endregion
 
             public bool testaCollegamento(int input, int output)
             { return (this.input == input && this.output == output); }
 
-            public String toString()
-            { return "ID: " + idNEAT + " -> " + input + " - " + output + " Peso " + peso + " Attivo: " + attivo; }
+            public String ToString()
+            { return "ID: " + neatID + " -> " + input + " - " + output + " Peso " + peso + " Attivo: " + attivo; }
 
             public int CompareTo(AssoneG other)
-            { return idNEAT - other.idNEAT; }
+            { return neatID - other.neatID; }
         }
 
-        public int t;
+        public int t; //cos'è?
         public List<AssoneG> assoni;
         public SortedList<int, NeuroneG> neuroni;
         public ICollection<NeuroneG> neuroniInput;
         public ICollection<NeuroneG> neuroniOutput;
-        public String nome;
+        private String nome;
+        public int numeroAssoni
+        {
+            get { return assoni.Count; }
+        }
+        public int numeroNeuroni
+        {
+            get { return neuroni.Count; }
+        }
+        public int numeroNeuroniInput
+        {
+            get { return neuroniInput.Count; }
+        }
+
+        #region Costruttori
 
         public GenotipoRN()
         {
@@ -105,14 +177,19 @@ namespace LibreriaRN
             assoni = new List<AssoneG>(g.assoni);
             neuroni = new SortedList<int, NeuroneG>(g.neuroni);
             neuroniInput = new List<NeuroneG>(g.neuroniInput);
+            neuroniOutput = new List<NeuroneG>(g.neuroniOutput);
             nome = Utilita.RandomString(5, false);
         }
+
+        #endregion
+
+        #region add
 
         public void addAssone(AssoneG a)
         { assoni.Add(a); }
 
         public void addNeurone(NeuroneG n)
-        { neuroni.Add(n.GetId(), n); }
+        { neuroni.Add(n.neatID, n); }
 
         public void addNeuroneInput(NeuroneG n)
         {
@@ -126,38 +203,22 @@ namespace LibreriaRN
             neuroniOutput.Add(n);
         }
 
-        public int getNumeroAssoni()
-        { return assoni.Count; }
+        #endregion
 
-        public int getNumeroNeuroni()
-        { return neuroni.Count; }
+        #region Serializzazione
 
-        public int getNumeroNeuroniInput()
-        { return neuroniInput.Count; }
-
-        public String toString()
+        public void sendNetwork(NetworkStream stream)
         {
-            String s = "";
-            foreach (AssoneG a in assoni)
-                s += a.toString() + "\n";
-            return s;
+            BinaryFormatter br = new BinaryFormatter();
+            br.Serialize(stream, this);
+            return;
         }
 
-        public String firma()
-        { return nome; }
-
-        public int CompareTo(GenotipoRN other)
-        { return t - other.t; }
-
-        public bool contieneNeuroneID(int n)
+        public static GenotipoRN receiveNetwork(NetworkStream stream)
         {
-            NeuroneG[] neuroniVector = neuroni.Values.ToArray();
-            bool trovato = false;
-
-            for (int i = 0; i < neuroni.Count && !trovato; i++)
-                if (neuroniVector[i].idNEAT == n)
-                    trovato = true;
-            return trovato;
+            BinaryFormatter bf = new BinaryFormatter();
+            GenotipoRN g = (GenotipoRN)bf.Deserialize(stream);
+            return g;
         }
 
         /* non testata */
@@ -187,9 +248,9 @@ namespace LibreriaRN
 
             }
             return RetValue;
-        
+
         }
-        
+
         /* non testata */
         public static GenotipoRN receiveFile(String NomeFile)
         {
@@ -212,22 +273,29 @@ namespace LibreriaRN
 
             }
         }
-        
 
-        public void sendNetwork(NetworkStream stream)
+        #endregion
+
+        public String toString()
         {
-            BinaryFormatter br = new BinaryFormatter();
-            br.Serialize(stream, this);
-            return;
+            String s = "";
+            foreach (AssoneG a in assoni)
+                s += a.ToString() + "\n";
+            return s;
         }
 
-        public static GenotipoRN receiveNetwork(NetworkStream stream)
+        public int CompareTo(GenotipoRN other)
+        { return t - other.t; }
+
+        public bool contieneNeuroneID(int n)
         {
-            BinaryFormatter bf = new BinaryFormatter();
-            GenotipoRN g = (GenotipoRN)bf.Deserialize(stream);
-            return g;
+            return neuroni.ContainsKey(n);
         }
 
+        public String firma()
+        {
+            return nome;
+        }
     }
 
 }

@@ -39,6 +39,8 @@ namespace NEAT_Viewer
 
         GrafoDisegno grafo;
         Thread trd;
+        FenotipoRN fenotipo;
+        double[] input;
 
         public Game1()
         {
@@ -64,7 +66,15 @@ namespace NEAT_Viewer
             GenotipoRN genotipo = gestore.getPerceptron();
             GenotipoRN g_mutato = gestore.mutazioneAggiungiNeurone(genotipo);
             g_mutato = gestore.mutazioneAggiungiNeurone(g_mutato);
+            g_mutato = gestore.mutazioneAggiungiAssone(g_mutato);
             grafo = new GrafoDisegno(g_mutato);
+            fenotipo = new FenotipoRN(g_mutato);
+            input = new double[fenotipo.numNeuroniSensori];
+
+            input[0] = -1;
+            for (int i = 1; i < fenotipo.numNeuroniSensori; i++)
+                input[i] = input[i-1] + 2/(double)(fenotipo.numNeuroniSensori-1);
+            grafo.AttachFenotipo(fenotipo);
 
             base.Initialize();
         }
@@ -75,10 +85,8 @@ namespace NEAT_Viewer
         /// </summary>
         protected override void LoadContent()
         {
-            // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
             circTexture = Content.Load<Texture2D>("cerchio");
-            // TODO: use this.Content to load your game content here
         }
 
         /// <summary>
@@ -90,6 +98,8 @@ namespace NEAT_Viewer
             // TODO: Unload any non ContentManager content here
         }
 
+        MouseState mPreviousState, mCurrentState;
+        KeyboardState kPreviousState, kCurrentState;
         /// <summary>
         /// Allows the game to run logic such as updating the world,
         /// checking for collisions, gathering input, and playing audio.
@@ -97,12 +107,33 @@ namespace NEAT_Viewer
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            // Allows the game to exit
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
-                this.Exit();
+            mCurrentState = Mouse.GetState();
+            kCurrentState = Keyboard.GetState();
+            if (mCurrentState.LeftButton == ButtonState.Pressed && mPreviousState.LeftButton == ButtonState.Released)
+            {
+                GrafoDisegno.Nodo nodoCliccato = grafo.CheckNodeClick(new Vector2(mCurrentState.X, mCurrentState.Y), true);
+                if (nodoCliccato == null)
+                    grafo.Unselect();
+            }
+            else if (mCurrentState.LeftButton == ButtonState.Pressed && mPreviousState.LeftButton == ButtonState.Pressed && grafo.selectedNode != null)
+                grafo.selectedNode.posizione = new Vector2(mCurrentState.X, mCurrentState.Y);
+            //else if (mCurrentState.LeftButton == ButtonState.Released && mPreviousState.LeftButton == ButtonState.Pressed && grafo.selectedNode != null)
+            //{
+            //    GrafoDisegno.Nodo targetNode = grafo.CheckNodeClick(new Vector2(mCurrentState.X, mCurrentState.Y), false);
+            //    if (targetNode != null)
+            //        grafo.SwitchNodes(grafo.selectedNode, targetNode);
+            //}
 
-            // TODO: Add your update logic here
+            if (kCurrentState.IsKeyDown(Keys.A) && kPreviousState.IsKeyUp(Keys.A))
+            {
+                fenotipo.sensori(input);
+                fenotipo.Calcola();
+                fenotipo.aggiorna();
+            }
 
+
+            kPreviousState = kCurrentState;
+            mPreviousState = mCurrentState;
             base.Update(gameTime);
         }
 
@@ -114,8 +145,7 @@ namespace NEAT_Viewer
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
             spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend);
-            grafo.Draw(spriteBatch, circTexture, rectTexture, Color.Yellow);
-            //DrawingHelper.DrawSpline(spriteBatch, rectTexture, Color.Black, new Vector2(100,100), new Vector2(0, -50), new Vector2(150, 50), new Vector2(50, 0), 4);
+            grafo.Draw(spriteBatch, circTexture, rectTexture, Color.Yellow, Color.Red, new Color(0, 255, 0), Color.Orange, Color.Green, Color.Red);
             spriteBatch.End();
 
             base.Draw(gameTime);

@@ -46,6 +46,7 @@
     <Compile Include="FenotipoRN.cs" />
     <Compile Include="GenotipoRN.cs" />
     <Compile Include="GestoreRN_NEAT.cs" />
+    <Compile Include="Params.cs" />
     <Compile Include="RN.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<TestSettings name="Locale" id="97c5ef7d-9f2c-4b0e-8ac2-48995f663065" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Description>Impostazioni test predefinite per un'esecuzione dei test locale.</Description>
+  <Deployment enabled="false" />
+  <Execution>
+    <TestTypeSpecific />
+    <AgentRule name="Execution Agents">
+    </AgentRule>
+  </Execution>
+</TestSettings>

@@ -29,19 +29,18 @@ namespace LibreriaRN
             p.t = 0;
 
             for (int i = 0; i < input; i++)
-                p.addNeuroneInput(new GenotipoRN.NeuroneG(contNeuroni++, 0));
+                p.addNeuroneInput(new GenotipoRN.NeuroneG(contNeuroni++, TipoNeurone.NSensor));
 
             for (int i = 0; i < output; i++)
-                p.addNeuroneOutput(new GenotipoRN.NeuroneG(contNeuroni++, 0));
-                       
-            for (int i = 0; i < (input * output); i++)
-            {
-                int I = i % input;
-                int O = i % output + input;
-                double peso = generatoreCasuale.NextDouble();
-                p.addAssone(new GenotipoRN.AssoneG(contAssoni, I, O, 1 - 2 * peso));
-                contAssoni++;
-            }
+                p.addNeuroneOutput(new GenotipoRN.NeuroneG(contNeuroni++, TipoNeurone.NActuator));
+
+            for(int i = 0; i < input; i++)
+                for (int j = 0; j < output; j++)
+                {
+                    double peso = generatoreCasuale.NextDouble();
+                    p.addAssone(new GenotipoRN.AssoneG(contAssoni, i, j+input, 1 - 2 * peso));
+                    contAssoni++;
+                }
 
             genotipi.Add(p);
         }
@@ -85,10 +84,10 @@ namespace LibreriaRN
             assoneCorrente.attivo = 0;
             g.assoni[num] = assoneCorrente;
 
-            g.addNeurone(new GenotipoRN.NeuroneG(contNeuroni, 0));
-            g.addAssone(new GenotipoRN.AssoneG(contAssoni, g.assoni[num].getInput(), contNeuroni, 1));
+            g.addNeurone(new GenotipoRN.NeuroneG(contNeuroni, TipoNeurone.NHide));
+            g.addAssone(new GenotipoRN.AssoneG(contAssoni, g.assoni[num].input, contNeuroni, 1));
             contAssoni++;
-            g.addAssone(new GenotipoRN.AssoneG(contAssoni, contNeuroni, g.assoni[num].getOutput(), g.assoni[num].getPeso()));
+            g.addAssone(new GenotipoRN.AssoneG(contAssoni, contNeuroni, g.assoni[num].output, g.assoni[num].peso));
             contAssoni++;
             contNeuroni++;
             return g;
@@ -104,12 +103,26 @@ namespace LibreriaRN
             int neurone2;
 
             int indice = genotipo.neuroni.Count;
-            
 
-            neurone1=genotipo.neuroni[generatoreCasuale.Next(indice)].GetId();
-            neurone2=genotipo.neuroni[generatoreCasuale.Next(indice)].GetId();
 
-            for (int i = 0; i < g.getNumeroAssoni(); i++)
+            /* ho impedito la possibilità di creare assoni che hanno come sorgente un nodo di output o come destinazione un nodo di input
+             * perché oltre a dare problemi di visualizzazione mi sembra abbiano poco senso: credo che i neuroni di input debbano semplicemente
+             * riportare gli input alla rete (secondo me senza farci nessuna elaborazione però si può consentire che il neurone di input abbia una
+             * funzione di soglia disabilitando Params.transparentInput) così come i neuroni di output debbano solo portare le uscite agli attuatori.
+             */
+            do
+                neurone1 = genotipo.neuroni[generatoreCasuale.Next(indice)].neatID;
+            while (genotipo.neuroni[neurone1].tipo == TipoNeurone.NActuator);
+            do
+                neurone2=genotipo.neuroni[generatoreCasuale.Next(indice)].neatID;
+            while (genotipo.neuroni[neurone2].tipo == TipoNeurone.NSensor);
+
+            for (int i = 0; i < g.numeroAssoni; i++)
+                /* io annullerei la possibilità di raddoppio perché trasformerebbe una mutazione del tipo "aggiungi assone" in una "modifica peso"
+                 * anche se occorrerebbe gestire in qualche modo il caso in cui si vorrebbe creare un assone già esistente. Continuando a generare a caso
+                 * input e output finché non si trovano due neuroni ancora non collegati si rischia infatti o di metterci molto tempo o peggio di entrare
+                 * in un ciclo infinito se tutti i collegamenti fossero già stabiliti, situazioni non impossibili con pochi neuroni.
+                 */
                 if (g.assoni[i].testaCollegamento(neurone1, neurone2))
                 {
                     GenotipoRN.AssoneG assone = g.assoni[i];
@@ -117,6 +130,7 @@ namespace LibreriaRN
                     g.assoni[i] = assone;
                     esiste = true;
                     Console.WriteLine("Raddoppio " + neurone1 + " - " + neurone2);
+                    break;
                 }
 
             if (!esiste)

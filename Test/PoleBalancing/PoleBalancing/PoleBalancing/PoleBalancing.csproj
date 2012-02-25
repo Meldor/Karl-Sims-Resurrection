@@ -1,20 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <ProjectGuid>{25251110-CE98-45A5-B7BC-AE852323DED8}</ProjectGuid>
+    <ProjectGuid>{AD95C22A-7D96-4FA4-BAC0-40605DB408A0}</ProjectGuid>
     <ProjectTypeGuids>{6D335F3A-9D43-41b4-9D22-F6F17C4BE596};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NEAT_Viewer</RootNamespace>
-    <AssemblyName>NEAT_Viewer</AssemblyName>
+    <RootNamespace>PoleBalancing</RootNamespace>
+    <AssemblyName>PoleBalancing</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <XnaFrameworkVersion>v4.0</XnaFrameworkVersion>
     <XnaPlatform>Windows</XnaPlatform>
     <XnaProfile>HiDef</XnaProfile>
-    <XnaCrossPlatformGroupID>b97fb069-5443-4ae7-a607-e34a18f9573f</XnaCrossPlatformGroupID>
+    <XnaCrossPlatformGroupID>7a7840f6-d90b-4313-b656-0a84c30c1bf8</XnaCrossPlatformGroupID>
     <XnaOutputType>Game</XnaOutputType>
     <ApplicationIcon>Game.ico</ApplicationIcon>
     <Thumbnail>GameThumbnail.png</Thumbnail>
@@ -60,6 +60,9 @@
     <XnaCompressContent>true</XnaCompressContent>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FarseerPhysicsXNA">
+      <HintPath>..\..\..\..\..\..\..\..\..\..\Program Files\Microsoft Visual Studio 10.0\VC#\Farseer Physics Engine 3.2 XNA\bin\x86\Debug\FarseerPhysicsXNA.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
       <Private>False</Private>
     </Reference>
@@ -107,24 +110,22 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cart.cs" />
     <Compile Include="Const.cs" />
     <Compile Include="DrawingHelper.cs" />
-    <Compile Include="Grafo.cs" />
+    <Compile Include="FParte.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Game1.cs" />
+    <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />
     <Content Include="GameThumbnail.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\TestNEAT_conClient\LibreriaRN\LibreriaRN.csproj">
-      <Project>{645DECE6-1CF5-44A0-8006-1ED0AEAE050C}</Project>
-      <Name>LibreriaRN</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NEAT_ViewerContent\NEAT_ViewerContent.contentproj">
-      <Name>NEAT_ViewerContent</Name>
+    <ProjectReference Include="..\PoleBalancingContent\PoleBalancingContent.contentproj">
+      <Name>PoleBalancingContent</Name>
       <XnaReferenceType>Content</XnaReferenceType>
     </ProjectReference>
   </ItemGroup>

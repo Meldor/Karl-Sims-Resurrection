@@ -16,11 +16,17 @@ namespace NEAT_Viewer
     /// ricalcolare ad ogni ciclo. Gli archi sono memorizzati all'interno di ogni nodo, cioè ogni nodo contiene gli archi
     /// verso i nodi a cui è collegato; è per rendere più semplice la visita del grafo.
     /// </summary>
-    public class GrafoDisegno
+    class GrafoDisegno
     {
         //la chiave di ordinamento è il NEAT_id
         SortedList<int, Nodo> nodi;
         int maxLivello = 0;
+        Nodo _selectedNode = null;
+        public Nodo selectedNode
+        {
+            get { return _selectedNode; }
+        }
+        FenotipoRN fenotipo = null;
 
         public GrafoDisegno(GenotipoRN input)
         {
@@ -29,23 +35,29 @@ namespace NEAT_Viewer
             //crea i nodi
             foreach (KeyValuePair<int, GenotipoRN.NeuroneG> neurone in input.neuroni)
             {
-                Nodo nuovo = new Nodo(neurone.Value.GetId());
+                Nodo nuovo = new Nodo(neurone.Value.neatID);
                 nuovo.livello = 0;
                 nuovo.stato = Nodo.StatoVisita.NonVisitato;
+                nuovo.tipo = TipoNeurone.NHide;
                 nodi.Add(neurone.Key, nuovo);
             }
             //prepara i neuroni di input
             foreach (GenotipoRN.NeuroneG neurone in input.neuroniInput)
             {
-                Nodo nuovoInput = nodi[neurone.GetId()];
+                Nodo nuovoInput = nodi[neurone.neatID];
                 nuovoInput.stato = Nodo.StatoVisita.InCoda;
+                nuovoInput.tipo = TipoNeurone.NSensor;
                 coda.Enqueue(nuovoInput);
             }
+            foreach (GenotipoRN.NeuroneG neurone in input.neuroniOutput)
+                nodi[neurone.neatID].tipo = TipoNeurone.NActuator;
             //crea gli archi e li inserisce nella lista archi del nodo di partenza
             foreach(GenotipoRN.AssoneG assone in input.assoni)
             {
-                Arco nuovo = new Arco(nodi[assone.getOutput()],nodi[assone.getInput()], assone.GetId(), assone.getPeso());
-                nodi[assone.getInput()].addArco(nuovo);
+                if (assone.attivo == 0)
+                    continue;
+                Arco nuovo = new Arco(nodi[assone.output],nodi[assone.input], assone.neatID, assone.peso);
+                nodi[assone.input].addArco(nuovo);
             }
             //definisce i livelli come distanza massima da un qualsiasi nodo di input; per far questo fa una visita in ampiezza
             //a partire dai nodi di input
@@ -57,7 +69,7 @@ namespace NEAT_Viewer
                 while (enumerator.MoveNext())
                 {
                     Arco a = enumerator.Current;
-                    if (a.destinazione.livello < (n.livello + 1))
+                    if ((a.destinazione.livello <= n.livello) && (a.destinazione.stato != Nodo.StatoVisita.Visitato) && (a.destinazione.tipo != TipoNeurone.NActuator) && (a.destinazione != a.partenza))
                     {
                         a.destinazione.livello = n.livello + 1;
                         if (a.destinazione.livello > maxLivello)
@@ -71,6 +83,9 @@ namespace NEAT_Viewer
                 }
                 n.stato = Nodo.StatoVisita.Visitato;
             }
+            foreach (GenotipoRN.NeuroneG neurone in input.neuroniOutput)
+                nodi[neurone.neatID].livello = maxLivello+1;
+            maxLivello++;
             //y_corrente[i] contiene la coordinata y del prossimo neurone al livello i
             int[] y_corrente = new int[maxLivello+1];
             y_corrente[0] = Const.LatoGriglia / 2;
@@ -82,9 +97,6 @@ namespace NEAT_Viewer
                 neurone.Value.posizione = new Vector2(neurone.Value.livello * Const.LatoGriglia + Const.LatoGriglia / 2, y_corrente[neurone.Value.livello]);
                 y_corrente[neurone.Value.livello] += Const.LatoGriglia*(maxLivello+1);
             }
-            //TODO: portare tutti i neuroni di output al livello massimo, per far sì che vengano tutti allineati. Bisogna però memorizzare
-            //separatamente i neuroni di output nel GenotipoRN, analogamente a quanto ho fatto per i neuroni di input.
-
         }
 
         /// <summary>
@@ -94,10 +106,90 @@ namespace NEAT_Viewer
         /// <param name="circTexture">Texture con un cerchio di raggio pari a Const.RaggioTextureCirc</param>
         /// <param name="rectTexture">Texture di almeno 1x1 pixel</param>
         /// <param name="color">Colore dei nodi</param>
-        public void Draw(SpriteBatch spriteBatch, Texture2D circTexture, Texture2D rectTexture, Color color)
+        public void Draw(SpriteBatch spriteBatch, Texture2D circTexture, Texture2D rectTexture, Color coloreNodoGenotipo, Color coloreNodoMin, Color coloreNodoMax, Color coloreNodoSelezionato, Color coloreArcoPos, Color coloreArcoNeg)
         {
+            bool interseca;
             foreach (KeyValuePair<int, Nodo> key_val in nodi)
-                key_val.Value.Draw(spriteBatch, circTexture, rectTexture, color);
+            {
+                IEnumerator<Arco> enumArco = key_val.Value.GetEnumeratorArco();
+                //disegna il nodo
+                if(key_val.Value == _selectedNode)
+                    key_val.Value.Draw(spriteBatch, circTexture, rectTexture, coloreNodoSelezionato);
+                else
+                    key_val.Value.Draw(spriteBatch, circTexture, rectTexture, coloreNodoMin, coloreNodoMax, coloreNodoGenotipo);
+                //scorre gli archi uscenti dal nodo
+                while (enumArco.MoveNext())
+                {
+                    interseca = false;
+                    //verifica se, disegnando l'arco con un segmento, si sovrapporrebbe ad un altro nodo
+                    //se sì disegna l'arco con una spline
+                    foreach (KeyValuePair<int, Nodo> key_val_2 in nodi)
+                    {
+                        if ((key_val_2.Value == enumArco.Current.partenza) || (key_val_2.Value == enumArco.Current.destinazione))
+                            continue;
+                        float distanza = enumArco.Current.DistanzaNodo(key_val_2.Value);
+                        if (distanza < Const.DimensioneNodo/2)
+                        {
+                            interseca = true;
+                            break;
+                        }
+                    }
+                    if (interseca)
+                    //TODO: verificare che i segmenti di cui è composta la spline non si sovrappongano ad altri nodi
+                    //modificare i vettori tangenti finché non ci sono più sovrapposizioni
+                        enumArco.Current.DrawSpline(spriteBatch, rectTexture, coloreArcoPos, coloreArcoNeg);
+                    else
+                        enumArco.Current.DrawLine(spriteBatch, rectTexture, coloreArcoPos, coloreArcoNeg);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Restituisce l'eventuale nodo presente in corrispondenza di mousePos.
+        /// </summary>
+        /// <param name="mousePos">Coordinate dove si vuole testare la presenza di un nodo</param>
+        /// <param name="setSelected">Se true l'eventuale nodo trovato viene impostato come selectedNode</param>
+        /// <returns>Eventuale nodo selezionato o null se il click non seleziona alcun nodo.</returns>
+        public Nodo CheckNodeClick(Vector2 mousePos, bool setSelected)
+        {
+            foreach (KeyValuePair<int, Nodo> k_val in nodi)
+            {
+                if (Vector2.Distance(k_val.Value.posizione, mousePos) <= Const.DimensioneNodo / 2)
+                {
+                    if(setSelected)
+                        _selectedNode = k_val.Value;
+                    return k_val.Value;
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Scambia la posizione dei due nodi nella visualizzazione
+        /// </summary>
+        /// <param name="node1"></param>
+        /// <param name="node2"></param>
+        public void SwitchNodes(Nodo node1, Nodo node2)
+        {
+            Vector2 temp = new Vector2(node1.posizione.X, node1.posizione.Y);
+            node1.posizione = node2.posizione;
+            node2.posizione = temp;
+            return;
+        }
+
+        /// <summary>
+        /// Deseleziona il nodo eventualmente selezionato
+        /// </summary>
+        public void Unselect()
+        {
+            _selectedNode = null;
+        }
+
+        public void AttachFenotipo(FenotipoRN f)
+        {
+            fenotipo = f;
+            foreach (KeyValuePair<int,Nodo> k_val in nodi)
+                k_val.Value.nodoFenotipo = f.GetNeuroneById(k_val.Key);
         }
 
         public class Nodo
@@ -108,6 +200,8 @@ namespace NEAT_Viewer
             private int _id;
             private StatoVisita _stato;
             private Vector2 _posizione;
+            private TipoNeurone _tipo;
+            private FenotipoRN.NeuroneF _nodoFenotipo;
 
             public int id
             {
@@ -137,10 +231,22 @@ namespace NEAT_Viewer
                 get { return _posizione; }
                 set { _posizione = new Vector2(value.X, value.Y); }
             }
+            public FenotipoRN.NeuroneF nodoFenotipo
+            {
+                get { return _nodoFenotipo; }
+                set { _nodoFenotipo = value; }
+            }
+
+            public TipoNeurone tipo
+            {
+                get { return _tipo; }
+                set { _tipo = value; }
+            }
 
             public Nodo(int id)
             {
                 _id = id;
+                _nodoFenotipo = null;
                 archi = new List<Arco>();
             }
 
@@ -153,12 +259,22 @@ namespace NEAT_Viewer
             {
                 return archi.GetEnumerator();
             }
-            public void Draw(SpriteBatch spriteBatch, Texture2D circTexture, Texture2D rectTexture, Color color)
+            public void Draw(SpriteBatch spriteBatch, Texture2D circTexture, Texture2D rectTexture, Color coloreMin, Color coloreMax, Color coloreGenotipo)
             {
-                spriteBatch.Draw(circTexture, posizione, null, color, 0f, new Vector2(Const.RaggioTextureCirc), (float)Const.DimensioneNodo / Const.RaggioTextureCirc, SpriteEffects.None, 0f);
-                foreach (Arco a in archi)
-                    a.Draw(spriteBatch, rectTexture, Color.Black);
+                if(nodoFenotipo == null)
+                    spriteBatch.Draw(circTexture, posizione, null, coloreGenotipo, 0f, new Vector2(Const.RaggioTextureCirc), (float)Const.DimensioneNodo / Const.RaggioTextureCirc, SpriteEffects.None, 0f);
+                else
+                {
+                    Color coloreMix = Color.Lerp(coloreMin, coloreMax, (float)(0.5 * nodoFenotipo.output + 0.5));
+                    spriteBatch.Draw(circTexture, posizione, null, coloreMix, 0f, new Vector2(Const.RaggioTextureCirc), (float)Const.DimensioneNodo / Const.RaggioTextureCirc, SpriteEffects.None, 0f);
+                }
             }
+
+            public void Draw(SpriteBatch spriteBatch, Texture2D circTexture, Texture2D rectTexture, Color colore)
+            {
+                spriteBatch.Draw(circTexture, posizione, null, colore, 0f, new Vector2(Const.RaggioTextureCirc), (float)Const.DimensioneNodo / Const.RaggioTextureCirc, SpriteEffects.None, 0f);
+            }
+
             public override string ToString()
             {
                 return "Id: " + id + " Livello: " + livello;
@@ -197,31 +313,89 @@ namespace NEAT_Viewer
 
             public override string ToString()
             {
-                return "Id: " + id + " Dest: " + destinazione.id + " Peso: " + peso;
+                return "Id: " + id + " " + partenza.id + "->" + destinazione.id + " Peso: " + peso;
             }
 
-            /*
-             * Se scommenti le righe sotto e commenti la prima utilizza le spline anziché le linee rette; probabilmente l'ideale sarebbe usare le rette
-             * quando possibile e le spline quando la retta si sovrapporrebbe ad un'altra già disegnata. E' la prossima modifica che penso di fare.
-             */
-            public void Draw(SpriteBatch spriteBatch, Texture2D rectTexture, Color color)
+            /// <summary>
+            /// Disegna l'arco con un segmento che congiunge partenza e destinazione.
+            /// </summary>
+            /// <param name="spriteBatch">SpriteBatch da utilizzare</param>
+            /// <param name="rectTexture">Texture rettangolare di almeno 1x1 pixel</param>
+            /// <param name="color">Colore con cui disegnare l'arco</param>
+            public void DrawLine(SpriteBatch spriteBatch, Texture2D rectTexture, Color colorePos, Color coloreNeg)
             {
-                DrawingHelper.DrawArrow(spriteBatch, rectTexture, color, partenza.posizione, destinazione.posizione, Const.AperturaFreccia, Const.LunghezzaFreccia, 1);
+                if (partenza != destinazione)
+                    if(peso < 0)
+                        DrawingHelper.DrawArrow(spriteBatch, rectTexture, coloreNeg, partenza.posizione, destinazione.posizione, Const.AperturaFreccia, Const.LunghezzaFreccia, 1, (float)Math.Abs(peso)*Const.MaxLarghezzaArco);
+                    else
+                        DrawingHelper.DrawArrow(spriteBatch, rectTexture, colorePos, partenza.posizione, destinazione.posizione, Const.AperturaFreccia, Const.LunghezzaFreccia, 1, (float)Math.Abs(peso) * Const.MaxLarghezzaArco);
+                else
+                    //se è un cappio lo disegna come spline
+                    if(peso < 0)
+                        DrawingHelper.DrawSplineArrow(spriteBatch, rectTexture, coloreNeg,
+                            new Vector2(-(float)(Const.DimensioneNodo / Math.Sqrt(2)), -(float)(Const.DimensioneNodo / Math.Sqrt(2))) + partenza.posizione, new Vector2(-(float)(Const.DimensioneNodo / Math.Sqrt(2)), -(float)(Const.DimensioneNodo / Math.Sqrt(2)))*Const.DimensioneNodo,
+                            new Vector2((float)(Const.DimensioneNodo / Math.Sqrt(2)), -(float)(Const.DimensioneNodo / Math.Sqrt(2))) + partenza.posizione, new Vector2(-(float)(Const.DimensioneNodo / Math.Sqrt(2)), (float)(Const.DimensioneNodo / Math.Sqrt(2)))*Const.DimensioneNodo,
+                            Const.NumSegmentiSpline, Const.AperturaFreccia, Const.LunghezzaFreccia, 1, (float)Math.Abs(peso) * Const.MaxLarghezzaArco);
+                    else
+                        DrawingHelper.DrawSplineArrow(spriteBatch, rectTexture, colorePos,
+                            new Vector2(-(float)(Const.DimensioneNodo / Math.Sqrt(2)), -(float)(Const.DimensioneNodo / Math.Sqrt(2))) + partenza.posizione, new Vector2(-(float)(Const.DimensioneNodo / Math.Sqrt(2)), -(float)(Const.DimensioneNodo / Math.Sqrt(2))) * Const.DimensioneNodo,
+                            new Vector2((float)(Const.DimensioneNodo / Math.Sqrt(2)), -(float)(Const.DimensioneNodo / Math.Sqrt(2))) + partenza.posizione, new Vector2(-(float)(Const.DimensioneNodo / Math.Sqrt(2)), (float)(Const.DimensioneNodo / Math.Sqrt(2))) * Const.DimensioneNodo,
+                            Const.NumSegmentiSpline, Const.AperturaFreccia, Const.LunghezzaFreccia, 1, (float)Math.Abs(peso) * Const.MaxLarghezzaArco);
+            }
 
-                //Vector2 startTangent = Vector2.Zero;
-                //Vector2 endTangent = Vector2.Zero;
-                //float distanza = (destinazione.posizione - partenza.posizione).Length();
-                //if(destinazione.livello > partenza.livello)
-                //    startTangent.X = distanza;
-                //else
-                //    startTangent.X = -distanza;
-                //if(destinazione.posizione.Y < partenza.posizione.Y)
-                //    endTangent.Y = -distanza;
-                //else
-                //    endTangent.Y = distanza;
-                //DrawingHelper.DrawSplineArrow(spriteBatch, rectTexture, color, partenza.posizione, startTangent, destinazione.posizione, endTangent, 6, Const.AperturaFreccia, Const.LunghezzaFreccia, 1);
+            /// <summary>
+            /// Disegna l'arco con una spline che congiunge partenza e destinazione
+            /// </summary>
+            /// <param name="spriteBatch">SpriteBatch da utilizzare</param>
+            /// <param name="rectTexture">Texture rettangolare di almeno 1x1 pixel</param>
+            /// <param name="color">Colore con cui disegnare l'arco</param>
+            public void DrawSpline(SpriteBatch spriteBatch, Texture2D rectTexture, Color colorePos, Color coloreNeg)
+            {
+                Vector2 startTangent = Vector2.Zero;
+                Vector2 endTangent = Vector2.Zero;
+                float distanza = (destinazione.posizione - partenza.posizione).Length();
+                if (destinazione.livello >= partenza.livello)
+                    startTangent.X = distanza;
+                else
+                    startTangent.X = -distanza;
+                if (destinazione.posizione.Y < partenza.posizione.Y)
+                    endTangent.Y = -distanza;
+                else if (destinazione.posizione.Y > partenza.posizione.Y)
+                    endTangent.Y = distanza;
+                else
+                    endTangent.X = -distanza;
+                if(peso < 0)
+                    DrawingHelper.DrawSplineArrow(spriteBatch, rectTexture, coloreNeg, partenza.posizione, startTangent, destinazione.posizione, endTangent, Const.NumSegmentiSpline, Const.AperturaFreccia, Const.LunghezzaFreccia, 1, (float)Math.Abs(peso)*Const.MaxLarghezzaArco);
+                else
+                    DrawingHelper.DrawSplineArrow(spriteBatch, rectTexture, colorePos, partenza.posizione, startTangent, destinazione.posizione, endTangent, Const.NumSegmentiSpline, Const.AperturaFreccia, Const.LunghezzaFreccia, 1, (float)Math.Abs(peso) * Const.MaxLarghezzaArco);
+            }
+
+            /// <summary>
+            /// Calcola la distanza tra la retta passante per i nodi di partenza e destinazione dell'arco corrente e il nodo passato
+            /// come argomento.
+            /// </summary>
+            /// <param name="nodo">Nodo rispetto a cui calcolare la distanza</param>
+            /// <returns>Distanza, in pixel</returns>
+            internal float DistanzaNodo(Nodo nodo)
+            {
+                //implementa la formula distanza punto-retta, determinando prima di tutto le costanti a, b, c della retta
+                //ax+by+c=0 passante per i centri dei nodi di partenza e destinazione
+                float a = partenza.posizione.Y-destinazione.posizione.Y;
+                float b = destinazione.posizione.X - partenza.posizione.X;
+                float c = partenza.posizione.X * destinazione.posizione.Y - destinazione.posizione.X * partenza.posizione.Y;
+                //se la proiezione della posizione del nodo sulla retta congiungente non appartiene al segmento che unisce partenza e destinazione
+                //restituisce +oo
+                float x_proiez = ((b * b * nodo.posizione.X - b * a * nodo.posizione.Y - c * a) / (a * a + b * b));
+                float y_proiez = ((a * a * nodo.posizione.Y - a * b * nodo.posizione.X - b * c) / (a * a + b * b));
+                float max_x = partenza.posizione.X > destinazione.posizione.X ? partenza.posizione.X : destinazione.posizione.X;
+                float min_x = partenza.posizione.X <= destinazione.posizione.X ? partenza.posizione.X : destinazione.posizione.X;
+                float max_y = partenza.posizione.Y > destinazione.posizione.Y ? partenza.posizione.Y : destinazione.posizione.Y;
+                float min_y = partenza.posizione.Y <= destinazione.posizione.Y ? partenza.posizione.Y : destinazione.posizione.Y;
+                if ((nodo.posizione.X > min_x) && (nodo.posizione.X < max_x) && (nodo.posizione.Y > min_y) && (nodo.posizione.Y < max_y))
+                    return (float)(Math.Abs(a * nodo.posizione.X + b * nodo.posizione.Y + c) / Math.Sqrt(a * a + b * b));
+                else
+                    return float.PositiveInfinity;
             }
         }
-
     }
 }
