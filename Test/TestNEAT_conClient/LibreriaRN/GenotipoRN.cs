@@ -29,6 +29,29 @@ namespace LibreriaRN
                 get { return _threshold; }
             }
             thresholdFunction _threshold;
+            /// <summary>
+            /// Indice della funzione di soglia
+            /// </summary>
+            public int thresholdIndex
+            {
+                get
+                {
+                    if(_threshold == Threshold.SigmoideAttenuante)
+                        return 0;
+                    else if(_threshold == Threshold.IperbolicTan)
+                        return 1;
+                    else if(_threshold == Threshold.Modulo)
+                        return 2;
+                    else if(_threshold == Threshold.Gaussian)
+                        return 3;
+                    else if(_threshold == Threshold.Transparent)
+                        return 4;
+                    else if(_threshold == Threshold.Sin)
+                        return 5;
+                    else
+                        return 6;
+                }
+            }
 
             #region Costruttori
 
@@ -81,17 +104,18 @@ namespace LibreriaRN
         {
             public int neatID
             { get { return _neatID; } }
-            private int _neatID;
             public int input
             { get { return _input; } }
-            private int _input;
             public int output
             { get { return _output; } }
-            private int _output;
             public double peso
             { get { return _peso; } }
+            public bool attivo;
+
+            private int _neatID;
+            private int _input;
+            private int _output;
             private double _peso;
-            public int attivo;
 
             public AssoneG(int idNEAT, int input, int output, double peso)
             {
@@ -99,16 +123,16 @@ namespace LibreriaRN
                 _input = input;
                 _output = output;
                 _peso = peso;
-                attivo = 1;
+                attivo = true;
             }
 
             #region Modifiche
 
             public void attiva()
-            { this.attivo = 1; }
+            { this.attivo = true; }
 
             public void disattiva()
-            { this.attivo = 0; }
+            { this.attivo = false; }
 
             public void modPeso(double p)
             { 
@@ -130,6 +154,12 @@ namespace LibreriaRN
 
             #endregion
 
+            /// <summary>
+            /// Indica se è presente o meno un assone tra i neuroni specificati
+            /// </summary>
+            /// <param name="input">idNEAT del neurone di input</param>
+            /// <param name="output">idNEAT del neurone di output</param>
+            /// <returns>true se è presente un assone</returns>
             public bool testaCollegamento(int input, int output)
             { return (this.input == input && this.output == output); }
 

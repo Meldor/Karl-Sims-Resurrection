@@ -49,7 +49,7 @@ namespace LibreriaRN
            foreach (GenotipoRN.NeuroneG neurone in genotipo.neuroniOutput)
                neuroniA.Add(neuroni[neurone.neatID]);
            foreach (GenotipoRN.AssoneG assone in genotipo.assoni)
-               if(assone.attivo == 1)
+               if(assone.attivo)
                     neuroni[assone.input].addAssone(assone, neuroni);
            NEAT_numID = 0;
            //numNeuroniSensori = neuroniS.Count;
@@ -106,6 +106,10 @@ namespace LibreriaRN
 
        #region Input/output
 
+       /// <summary>
+       /// Propaga gli output del ciclo precedente lungo gli assoni
+       /// </summary>
+       /// <returns>Lista dei valori prodotti dagli output ordinata in base all'idNEAT</returns>
        public SortedList<int, Double> Calcola()
        {
            SortedList<int, Double> output = new SortedList<int, double>();
@@ -121,6 +125,10 @@ namespace LibreriaRN
            return output;
        }
 
+       /// <summary>
+       /// Gli input futuri diventano input presenti e viene calcolata la funzione di soglia di ogni neurone.
+       /// </summary>
+       /// <returns>Lista dei valori prodotti dagli output ordinata in base all'idNEAT</returns>
        public SortedList<int, Double> aggiorna()
        {
            SortedList<int, Double> output = new SortedList<int, double>();
@@ -136,6 +144,10 @@ namespace LibreriaRN
            return output;
        }
 
+       /// <summary>
+       /// Applica in ingresso i dati contenuti in vett
+       /// </summary>
+       /// <param name="vett">Ingressi da applicare, nell'ordine di neuroniS</param>
        public void sensori(Double[] vett)
        {
            if (vett.Length == neuroniS.Count)
@@ -180,6 +192,10 @@ namespace LibreriaRN
 
            #region Costruttori
 
+           /// <summary>
+           /// Traduce il genotipo passato per argomento
+           /// </summary>
+           /// <param name="neuroneG">Genotipo da tradurre</param>
            public NeuroneF(GenotipoRN.NeuroneG neuroneG)
            {
                _neatID = neuroneG.neatID;
@@ -216,7 +232,7 @@ namespace LibreriaRN
 
            public Double attiva()
            {
-               _output = this.calcola();
+               //_output = this.calcola();  cancellato per evitare di sballare le funzioni con memoria
                foreach (AssoneF assone in assoni)
                     assone.attiva(output);
                return output;
@@ -286,6 +302,10 @@ namespace LibreriaRN
 
            #endregion
 
+           /// <summary>
+           /// Invia l'ingresso pesato al neurone a cui è collegato, come input futuro
+           /// </summary>
+           /// <param name="_in">Ingresso da inviare</param>
            public void attiva(Double _in)
            {
                Double output;

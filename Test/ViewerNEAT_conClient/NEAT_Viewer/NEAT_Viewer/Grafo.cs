@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -35,7 +35,7 @@ namespace NEAT_Viewer
             //crea i nodi
             foreach (KeyValuePair<int, GenotipoRN.NeuroneG> neurone in input.neuroni)
             {
-                Nodo nuovo = new Nodo(neurone.Value.neatID);
+                Nodo nuovo = new Nodo(neurone.Value.neatID, neurone.Value.thresholdIndex);
                 nuovo.livello = 0;
                 nuovo.stato = Nodo.StatoVisita.NonVisitato;
                 nuovo.tipo = TipoNeurone.NHide;
@@ -54,7 +54,7 @@ namespace NEAT_Viewer
             //crea gli archi e li inserisce nella lista archi del nodo di partenza
             foreach(GenotipoRN.AssoneG assone in input.assoni)
             {
-                if (assone.attivo == 0)
+                if (!assone.attivo)
                     continue;
                 Arco nuovo = new Arco(nodi[assone.output],nodi[assone.input], assone.neatID, assone.peso);
                 nodi[assone.input].addArco(nuovo);
@@ -106,7 +106,7 @@ namespace NEAT_Viewer
         /// <param name="circTexture">Texture con un cerchio di raggio pari a Const.RaggioTextureCirc</param>
         /// <param name="rectTexture">Texture di almeno 1x1 pixel</param>
         /// <param name="color">Colore dei nodi</param>
-        public void Draw(SpriteBatch spriteBatch, Texture2D circTexture, Texture2D rectTexture, Color coloreNodoGenotipo, Color coloreNodoMin, Color coloreNodoMax, Color coloreNodoSelezionato, Color coloreArcoPos, Color coloreArcoNeg)
+        public void Draw(SpriteBatch spriteBatch, Texture2D circTexture, Texture2D rectTexture, Texture2D[] thresholdFunctions, Color coloreNodoGenotipo, Color coloreNodoMin, Color coloreNodoMax, Color coloreNodoSelezionato, Color coloreArcoPos, Color coloreArcoNeg)
         {
             bool interseca;
             foreach (KeyValuePair<int, Nodo> key_val in nodi)
@@ -114,9 +114,9 @@ namespace NEAT_Viewer
                 IEnumerator<Arco> enumArco = key_val.Value.GetEnumeratorArco();
                 //disegna il nodo
                 if(key_val.Value == _selectedNode)
-                    key_val.Value.Draw(spriteBatch, circTexture, rectTexture, coloreNodoSelezionato);
+                    key_val.Value.Draw(spriteBatch, circTexture, rectTexture, thresholdFunctions, coloreNodoSelezionato);
                 else
-                    key_val.Value.Draw(spriteBatch, circTexture, rectTexture, coloreNodoMin, coloreNodoMax, coloreNodoGenotipo);
+                    key_val.Value.Draw(spriteBatch, circTexture, rectTexture, thresholdFunctions, coloreNodoMin, coloreNodoMax, coloreNodoGenotipo);
                 //scorre gli archi uscenti dal nodo
                 while (enumArco.MoveNext())
                 {
@@ -128,7 +128,7 @@ namespace NEAT_Viewer
                         if ((key_val_2.Value == enumArco.Current.partenza) || (key_val_2.Value == enumArco.Current.destinazione))
                             continue;
                         float distanza = enumArco.Current.DistanzaNodo(key_val_2.Value);
-                        if (distanza < Const.DimensioneNodo/2)
+                        if (distanza < Const.DimensioneNodo)
                         {
                             interseca = true;
                             break;
@@ -202,6 +202,7 @@ namespace NEAT_Viewer
             private Vector2 _posizione;
             private TipoNeurone _tipo;
             private FenotipoRN.NeuroneF _nodoFenotipo;
+            private int _indiceThreshold;
 
             public int id
             {
@@ -243,9 +244,10 @@ namespace NEAT_Viewer
                 set { _tipo = value; }
             }
 
-            public Nodo(int id)
+            public Nodo(int id, int indiceThreshold)
             {
                 _id = id;
+                _indiceThreshold = indiceThreshold;
                 _nodoFenotipo = null;
                 archi = new List<Arco>();
             }
@@ -259,20 +261,25 @@ namespace NEAT_Viewer
             {
                 return archi.GetEnumerator();
             }
-            public void Draw(SpriteBatch spriteBatch, Texture2D circTexture, Texture2D rectTexture, Color coloreMin, Color coloreMax, Color coloreGenotipo)
+            public void Draw(SpriteBatch spriteBatch, Texture2D circTexture, Texture2D rectTexture, Texture2D[] thresholdTextures, Color coloreMin, Color coloreMax, Color coloreGenotipo)
             {
-                if(nodoFenotipo == null)
+                if (nodoFenotipo == null)
+                {
                     spriteBatch.Draw(circTexture, posizione, null, coloreGenotipo, 0f, new Vector2(Const.RaggioTextureCirc), (float)Const.DimensioneNodo / Const.RaggioTextureCirc, SpriteEffects.None, 0f);
+                    spriteBatch.Draw(thresholdTextures[_indiceThreshold], posizione, null, Color.White, 0f, new Vector2(Const.LatoTextureThreshold)/2, (float)2*Const.DimensioneNodo / Const.LatoTextureThreshold, SpriteEffects.None, 0.1f);
+                }
                 else
                 {
                     Color coloreMix = Color.Lerp(coloreMin, coloreMax, (float)(0.5 * nodoFenotipo.output + 0.5));
                     spriteBatch.Draw(circTexture, posizione, null, coloreMix, 0f, new Vector2(Const.RaggioTextureCirc), (float)Const.DimensioneNodo / Const.RaggioTextureCirc, SpriteEffects.None, 0f);
+                    spriteBatch.Draw(thresholdTextures[_indiceThreshold], posizione, null, Color.White, 0f, new Vector2(Const.LatoTextureThreshold) / 2, (float)2 * Const.DimensioneNodo / Const.LatoTextureThreshold, SpriteEffects.None, 0.1f);
                 }
             }
 
-            public void Draw(SpriteBatch spriteBatch, Texture2D circTexture, Texture2D rectTexture, Color colore)
+            public void Draw(SpriteBatch spriteBatch, Texture2D circTexture, Texture2D rectTexture, Texture2D[] thresholdTextures, Color colore)
             {
                 spriteBatch.Draw(circTexture, posizione, null, colore, 0f, new Vector2(Const.RaggioTextureCirc), (float)Const.DimensioneNodo / Const.RaggioTextureCirc, SpriteEffects.None, 0f);
+                spriteBatch.Draw(thresholdTextures[_indiceThreshold], posizione, null, Color.White, 0f, new Vector2(Const.LatoTextureThreshold) / 2, (float)2 * Const.DimensioneNodo / Const.LatoTextureThreshold, SpriteEffects.None, 0f);
             }
 
             public override string ToString()

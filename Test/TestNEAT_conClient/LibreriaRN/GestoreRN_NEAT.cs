@@ -34,15 +34,6 @@ namespace LibreriaRN
             for (int i = 0; i < output; i++)
                 p.addNeuroneOutput(new GenotipoRN.NeuroneG(contNeuroni++, TipoNeurone.NActuator));
 
-            //for (int i = 0; i < (input * output); i++)
-            //{
-            //    int I = i % input;
-            //    int O = i % output + input;
-            //    double peso = generatoreCasuale.NextDouble();
-            //    p.addAssone(new GenotipoRN.AssoneG(contAssoni, I, O, 1 - 2 * peso));
-            //    contAssoni++;
-            //}
-
             for(int i = 0; i < input; i++)
                 for (int j = 0; j < output; j++)
                 {
@@ -90,7 +81,7 @@ namespace LibreriaRN
             int num = generatoreCasuale.Next(g.assoni.Count);
 
             GenotipoRN.AssoneG assoneCorrente = g.assoni[num];
-            assoneCorrente.attivo = 0;
+            assoneCorrente.attivo = false;
             g.assoni[num] = assoneCorrente;
 
             g.addNeurone(new GenotipoRN.NeuroneG(contNeuroni, TipoNeurone.NHide));

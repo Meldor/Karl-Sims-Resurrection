@@ -62,14 +62,17 @@ namespace LibreriaRN
         }
 
         public static Double Sin(Double input, ref Double memoria)
-        {
-            memoria += 2 * Math.PI * (7.5 * input + 7.5) * 0.016;
+        {   //input = -1 -> f = 0 Hz
+            //input = +1 -> f = 2 Hz (se 60 FPS) 
+            memoria += 2 * Math.PI * (input + 1) * 0.016;
             return Math.Sin(memoria);
         }
 
         public static Double SquareWave(Double input, ref Double memoria)
         {
-            memoria += (input + 1)/2;
+            //input = -1 -> f = 0 Hz
+            //input = +1 -> f = 2 Hz (se 60 FPS)
+            memoria += (input + 1)/60;
             if ((int)Math.Floor(memoria) % 2 == 0)
                 return -1;
             else
@@ -81,7 +84,7 @@ namespace LibreriaRN
             Thread.Sleep(10);
             if (Params.onlySigmoid)
                 return SigmoideAttenuante;
-            int id = generatoreCasuale.Next(0, numFunz - 1);
+            int id = generatoreCasuale.Next(0, numFunz);
             switch (id)
             {
                 case 0: return SigmoideAttenuante;
@@ -98,7 +101,7 @@ namespace LibreriaRN
     
     public class Utilita
     {
-        public static Double pesoUniforme=0.001;
+        public static Double pesoUniforme=0.1;
         public static String RandomString(int size, bool lowerCase)
         {
             StringBuilder builder = new StringBuilder();

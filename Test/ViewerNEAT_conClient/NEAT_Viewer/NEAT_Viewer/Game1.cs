@@ -36,6 +36,7 @@ namespace NEAT_Viewer
 
         Texture2D circTexture;
         Texture2D rectTexture;
+        Texture2D[] thresholdFunctions;
 
         GrafoDisegno grafo;
         Thread trd;
@@ -87,6 +88,14 @@ namespace NEAT_Viewer
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
             circTexture = Content.Load<Texture2D>("cerchio");
+            thresholdFunctions = new Texture2D[7];
+            thresholdFunctions[0] = Content.Load<Texture2D>("sigmoide");
+            thresholdFunctions[1] = Content.Load<Texture2D>("tanh");
+            thresholdFunctions[2] = Content.Load<Texture2D>("abs");
+            thresholdFunctions[3] = Content.Load<Texture2D>("gauss");
+            thresholdFunctions[4] = Content.Load<Texture2D>("transp");
+            thresholdFunctions[5] = Content.Load<Texture2D>("sin");
+            thresholdFunctions[6] = Content.Load<Texture2D>("squared");
         }
 
         /// <summary>
@@ -145,7 +154,7 @@ namespace NEAT_Viewer
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
             spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend);
-            grafo.Draw(spriteBatch, circTexture, rectTexture, Color.Yellow, Color.Red, new Color(0, 255, 0), Color.Orange, Color.Green, Color.Red);
+            grafo.Draw(spriteBatch, circTexture, rectTexture, thresholdFunctions, Color.Black, Color.Red, new Color(0, 255, 0), Color.Orange, Color.Green, Color.Red);
             spriteBatch.End();
 
             base.Draw(gameTime);
