@@ -24,45 +24,25 @@ namespace LibreriaRN
                 get { return _tipo; }
             }
             TipoNeurone _tipo;
-            public thresholdFunction threshold
-            {
-                get { return _threshold; }
-            }
-            thresholdFunction _threshold;
-            /// <summary>
-            /// Indice della funzione di soglia
-            /// </summary>
             public int thresholdIndex
             {
                 get
                 {
-                    if(_threshold == Threshold.SigmoideAttenuante)
-                        return 0;
-                    else if(_threshold == Threshold.IperbolicTan)
-                        return 1;
-                    else if(_threshold == Threshold.Modulo)
-                        return 2;
-                    else if(_threshold == Threshold.Gaussian)
-                        return 3;
-                    else if(_threshold == Threshold.Transparent)
-                        return 4;
-                    else if(_threshold == Threshold.Sin)
-                        return 5;
-                    else
-                        return 6;
+                    return _thresholdIndex;
                 }
             }
+            private int _thresholdIndex;
 
             #region Costruttori
 
-            public NeuroneG(int idNEAT, TipoNeurone tipo, thresholdFunction threshold)
+            public NeuroneG(int idNEAT, TipoNeurone tipo, int thresholdFunctionIndex)
             {
                 _neatID = idNEAT;
                 _tipo = tipo;
                 if (Params.transparentInput && tipo == TipoNeurone.NSensor)
-                    _threshold = Threshold.Transparent;
+                    _thresholdIndex = 4;
                 else
-                    _threshold = threshold;
+                    _thresholdIndex = thresholdFunctionIndex;
             }
 
             public NeuroneG(int idNEAT, TipoNeurone tipo)
@@ -70,9 +50,9 @@ namespace LibreriaRN
                 _neatID = idNEAT;
                 _tipo = tipo;
                 if (Params.transparentInput && tipo == TipoNeurone.NSensor)
-                    _threshold = Threshold.Transparent;
+                    _thresholdIndex = 4;
                 else
-                    _threshold = Threshold.getRandomDelegate();
+                    _thresholdIndex = Threshold.getRandomIndex();
             }
 
             #endregion

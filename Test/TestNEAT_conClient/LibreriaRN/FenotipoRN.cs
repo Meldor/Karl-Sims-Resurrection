@@ -201,7 +201,7 @@ namespace LibreriaRN
                _neatID = neuroneG.neatID;
                memoria = 0;
                _tipo = neuroneG.tipo;
-               funzioneSoglia = neuroneG.threshold;
+               funzioneSoglia = Threshold.getThresholdFromIndex(neuroneG.thresholdIndex);
                inputP = new List<double>();
                inputF = new List<double>();
                assoni = new List<AssoneF>();

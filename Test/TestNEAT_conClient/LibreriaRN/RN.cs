@@ -97,6 +97,26 @@ namespace LibreriaRN
                 default: return SquareWave;
             }
         }
+
+        public static int getRandomIndex()
+        {
+            return generatoreCasuale.Next(0, numFunz);
+        }
+
+        public static thresholdFunction getThresholdFromIndex(int index)
+        {
+            switch (index)
+            {
+                case 0: return SigmoideAttenuante;
+                case 1: return IperbolicTan;
+                case 2: return Modulo;
+                case 3: return Gaussian;
+                case 4: return Transparent;
+                case 5: return Sin;
+                case 6: return SquareWave;
+                default: return SquareWave;
+            }
+        }
     }
     
     public class Utilita

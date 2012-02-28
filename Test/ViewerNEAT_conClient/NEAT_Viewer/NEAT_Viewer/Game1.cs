@@ -40,7 +40,8 @@ namespace NEAT_Viewer
 
         GrafoDisegno grafo;
         Thread trd;
-        FenotipoRN fenotipo;
+        FenotipoRN fenotipo, fenotipoCorrente;
+        GenotipoRN genotipoCorrente;
         double[] input;
 
         public Game1()
@@ -193,11 +194,44 @@ namespace NEAT_Viewer
                         {
                             //data = "Inizio Ricezione";
 
-                            GenotipoRN g = LibreriaRN.GenotipoRN.receiveNetwork(stream);
-                            grafo = new GrafoDisegno(g);
+                            genotipoCorrente = LibreriaRN.GenotipoRN.receiveNetwork(stream);
+                            grafo = new GrafoDisegno(genotipoCorrente);
                             data = "Ricezione rete neurale avvenuta\n";
                         }
-                        
+                        else if (data == "GF")
+                        {
+                            fenotipo = new FenotipoRN(genotipoCorrente);
+                            grafo.AttachFenotipo(fenotipo);
+                            data = "Fenotipo generato con successo\n";
+                        }
+                        else if (data == "INPUT")
+                        {
+                            String sInput;
+                            String[] parsedInput;
+                            char[] separatori = { ' ' };
+                            if ((i = stream.Read(bytes, 0, bytes.Length)) != 0) //legge fino a 256 caratteri dallo stream di rete
+                            {
+                                sInput = System.Text.Encoding.ASCII.GetString(bytes, 0, i); // interpreta lo stream a blocchi di 1Byte cod.ASCII
+                                parsedInput = sInput.Split(separatori, StringSplitOptions.RemoveEmptyEntries);
+                                for (i = 0; i < fenotipo.numNeuroniSensori; i++)
+                                    input[i] = Double.Parse(parsedInput[i]);
+                                data = "Input ricevuti\n";
+                            }
+                            else
+                                data = "Errore nella ricezione degli input\n";
+                        }
+                        else if (data == "AGG")
+                        {
+                            SortedList<int, double> output;
+                            data = "";
+                            fenotipo.sensori(input);
+                            fenotipo.Calcola();
+                            output = fenotipo.aggiorna();
+                            foreach (KeyValuePair<int, double> k_val in output)
+                            {
+                                data += k_val.Key.ToString() + ": " + k_val.Value.ToString() + "\n";
+                            }
+                        }
                         else if (data == "exit" || data == "quit")
                         {
                             fine = true;
