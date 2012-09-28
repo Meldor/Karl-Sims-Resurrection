@@ -55,6 +55,7 @@ namespace LibreriaRN
                         yield return i;
                 }
             }
+            private int _thresholdIndex;
 
             #region Costruttori
 
