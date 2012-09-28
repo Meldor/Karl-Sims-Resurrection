@@ -10,19 +10,29 @@ namespace LibreriaRN
         private int contNeuroni;
         private int contAssoni;
         public ICollection<GenotipoRN> genotipi;
+        public List<GenotipoRN> population;
+        public List<GenotipoRN> futurePopulation;
 
-        public GestoreRN_NEAT(int input, int output)
+        public GestoreRN_NEAT(int input, int output, int perceptronNumber=1)
         {
+            
             contNeuroni = 0;
             contAssoni = 0;
             genotipi = new SortedSet<GenotipoRN>();
+            population = new List<GenotipoRN>();
+            futurePopulation = new List<GenotipoRN>();
+
             generaPerceptron(input, output);
+            for (int i = 0; i < perceptronNumber;i++)
+            {
+                population.Add(mutazioneModificaPesoRadicalmenteTuttiAssoni(getPerceptron()));                
+            }
         }
 
         public GenotipoRN getPerceptron()
         { return genotipi.First(); }
 
-        private void generaPerceptron(int input, int output)
+        private GenotipoRN generaPerceptron(int input, int output)
         {
             Random generatoreCasuale = new Random();
             GenotipoRN p = new GenotipoRN();
@@ -43,6 +53,7 @@ namespace LibreriaRN
                 }
 
             genotipi.Add(p);
+            return p;
         }
 
         public GenotipoRN[] mutazione(GenotipoRN genotipo, int num)
@@ -170,5 +181,20 @@ namespace LibreriaRN
             return g;
         }
 
+        private GenotipoRN mutazioneModificaPesoRadicalmenteTuttiAssoni(GenotipoRN genotipo)
+        {
+            GenotipoRN g = new GenotipoRN(genotipo);
+            Random generatoreCasuale = new Random();
+
+            //int num = generatoreCasuale.Next(g.assoni.Count);
+
+            for (int num = 0; num < g.assoni.Count; num++)
+            {
+                GenotipoRN.AssoneG assoneCorrente = g.assoni[g.assoni.Keys[num]];
+                assoneCorrente.modPeso(1 - 2 * generatoreCasuale.NextDouble());
+                g.assoni[g.assoni.Keys[num]] = assoneCorrente;
+            }
+            return g;
+        }
     }
 }

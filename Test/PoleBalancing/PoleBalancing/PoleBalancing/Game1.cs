@@ -15,6 +15,8 @@ using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Dynamics.Joints;
 using FarseerPhysics.Dynamics.Contacts;
 
+using LibreriaRN;
+
 namespace PoleBalancing
 {
     /// <summary>
@@ -25,23 +27,16 @@ namespace PoleBalancing
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        Fixture floor;
-
-        FParte pole1;
         Vector2 pole1Size;
-        FParte pole2;
+       
         Vector2 pole2Size;
-        Vector2 poleOffset;
-
-        FParte cart;
+        
         Vector2 cartPos;
         Vector2 cartSize;
 
         Texture2D rectTexture;
         Texture2D circTexture;
-
-        World world;
-
+        
         Cart cartObject;
 
         public Game1()
@@ -58,6 +53,8 @@ namespace PoleBalancing
         /// related content.  Calling base.Initialize will enumerate through any components
         /// and initialize them as well.
         /// </summary>
+        /// 
+        private Evolution evolution;
         protected override void Initialize()
         {
             cartSize = new Vector2(2, 1);
@@ -67,31 +64,9 @@ namespace PoleBalancing
             pole2Size = new Vector2(0.1f, 0.5f);
 
             cartObject = new Cart(cartPos, cartSize, pole1Size, pole2Size);
+            evolution = new Evolution(cartObject);
             rectTexture = DrawingHelper.RectangularTexture(graphics.GraphicsDevice, 1000, 1000, Color.White);
-            //poleOffset = new Vector2(0, -cartSize.Y/2);
-
-            //world = new World(new Vector2(0, Const.Gravity));
-            
-
-            //floor = FixtureFactory.CreateRectangle(world, Const.FloorWidth, Const.FloorHeigh, 0.1f, new Vector2(0, Const.FloorYPosition));
-            //floor.Body.BodyType = BodyType.Static;
-            //floor.Restitution = 0.2f;
-            //floor.Friction = 0.3f;
-            //floor.CollisionFilter.CollisionCategories = Category.Cat4;
-
-            //cart = new FParte(cartSize, cartPos, Const.PartDensity*3, world);
-            //cart.CollisionCategory = Category.Cat4;
-
-            //pole1 = new FParte(pole1Size, Vector2.Zero, Const.PartDensity, world, Color.Blue, Color.Yellow);
-            //pole1.Join(cart, new Vector2(0, pole1Size.Y / 2), new Vector2(0, -cartSize.Y / 2), Color.Yellow, 0.1f);
-            //pole1.CollisionCategory = Category.Cat1;
-            //pole1.AddCollidesCategory(Category.Cat4);
-
-            //pole2 = new FParte(pole2Size, Vector2.Zero, Const.PartDensity, world, Color.Blue, Color.Yellow);
-            //pole2.Join(cart, new Vector2(0, pole2Size.Y / 2), new Vector2(0, -cartSize.Y / 2), Color.Yellow, 0.1f);
-            //pole2.CollisionCategory = Category.Cat2;
-            //pole2.AddCollidesCategory(Category.Cat4);
-
+           
             base.Initialize();
         }
 
@@ -126,10 +101,6 @@ namespace PoleBalancing
         protected override void Update(GameTime gameTime)
         {
             kCurrentState = Keyboard.GetState();
-            //if (kCurrentState.IsKeyDown(Keys.Left))
-            //    cart.ApplyForce(new Vector2(-4, 0), cart.Position);
-            //if (kCurrentState.IsKeyDown(Keys.Right))
-            //    cart.ApplyForce(new Vector2(4, 0), cart.Position);
 
             if (kCurrentState.IsKeyDown(Keys.Left))
                 cartObject.ApplyForce(-1);
@@ -137,7 +108,7 @@ namespace PoleBalancing
                 cartObject.ApplyForce(1);
 
             kPreviousState = kCurrentState;
-            //world.Step((float)gameTime.ElapsedGameTime.TotalMilliseconds / 1000);
+           
             cartObject.Update((float)gameTime.ElapsedGameTime.TotalMilliseconds / 1000);
             base.Update(gameTime);
         }
@@ -151,10 +122,6 @@ namespace PoleBalancing
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             spriteBatch.Begin();
-            //cart.Draw(spriteBatch, rectTexture, circTexture, Const.Zoom);
-            //pole1.Draw(spriteBatch, rectTexture, circTexture, Const.Zoom);
-            //pole2.Draw(spriteBatch, rectTexture, circTexture, Const.Zoom);
-            //spriteBatch.Draw(rectTexture, Const.Zoom * floor.Body.Position, new Rectangle(0, 0, (int)(Const.FloorWidth * Const.Zoom), (int)(Const.FloorHeigh * Const.Zoom)), Color.Black, floor.Body.Rotation, new Vector2(Const.FloorWidth, Const.FloorHeigh)/2*Const.Zoom, 1, SpriteEffects.None, 0);
             cartObject.Draw(spriteBatch, rectTexture, circTexture);
             spriteBatch.End();
 

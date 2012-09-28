@@ -140,4 +140,169 @@ namespace LibreriaRN
             return (excessAss + excessNeur) * Params.excessGenesWeight/maxGenes + (disjointAss + disjointNeur) * Params.disjointGenesWeight/maxGenes + weightDifference * Params.weightDifferenceWeight + functionDifferences * Params.functionDifferenceWeight;
         }
     }
+
+    public class Species
+    {
+        SpeciesManager manager;
+        GenotipoRN champion;
+        SortedList<float, GenotipoRN> genotipoList;
+        public Species(GenotipoRN champion, SpeciesManager manager)
+        {
+            this.manager = manager;
+            this.champion = champion;
+            genotipoList = new SortedList<float, GenotipoRN>();
+            genotipoList.Add(champion.Fitness, champion);
+        }
+
+        public bool addGenotipo(GenotipoRN genotipo)
+        {
+            bool inSpecies = false;
+            double distance = AlgGenRN.distanza(champion, genotipo);
+
+            if (distance < Params.SPECIES_MAX_DISTANCE)
+            {
+                inSpecies = true;
+                genotipoList.Add(genotipo.Fitness, genotipo);
+            }
+
+            return inSpecies;
+        }
+
+        public double fitnessSum()
+        {
+            double sum = 0;
+            foreach (GenotipoRN g in genotipoList.Values)
+                sum += g.Fitness;
+            return sum / genotipoList.Count;        
+        }
+
+        public void GetNextGeneration(List<GenotipoRN> poolCrossingOver, int numberMax)
+        {
+            Random r = new Random();
+            GenotipoRN parent1 = null;
+            GenotipoRN parent2 = null;
+
+            int n= genotipoList.Count;
+            int gaussNumber = (n * (n + 1)) / 2;
+            int extractNumber;
+            int generateCreatureNumber=1;
+
+            poolCrossingOver.Add(genotipoList.First().Value);
+
+            while (generateCreatureNumber < (3*numberMax/4 -1))
+            {
+                extractNumber=r.Next(gaussNumber);
+                int accumulator = n;
+                for (int i = 0; i < genotipoList.Count; i++)
+                {
+                    if (extractNumber < accumulator)
+                    {
+                        parent1 = genotipoList.ElementAt(i).Value;
+                        break;
+                    }
+                    else
+                        accumulator += genotipoList.Count - i - 1;
+                }
+
+                extractNumber = r.Next(gaussNumber);
+                accumulator = n;
+                for (int i = 0; i < genotipoList.Count; i++)
+                {
+                    if (extractNumber < accumulator)
+                    {
+                        parent2 = genotipoList.ElementAt(i).Value;
+                        break;
+                    }
+                    else
+                        accumulator += genotipoList.Count - i - 1;
+                }
+                GenotipoRN child = new GenotipoRN(parent1, parent1.Fitness, parent2, parent2.Fitness);
+
+                poolCrossingOver.Add(child);
+                generateCreatureNumber++;
+            }
+
+            while (generateCreatureNumber < numberMax)
+            {
+                GenotipoRN randomGenotipo = null;
+                extractNumber = r.Next(gaussNumber);
+                int accumulator = n;
+                for (int i = 0; i < genotipoList.Count; i++)
+                {
+                    if (extractNumber < accumulator)
+                    {
+                        randomGenotipo = genotipoList.ElementAt(i).Value;
+                        break;
+                    }
+                    else
+                        accumulator += genotipoList.Count - i - 1;
+                }
+
+                 poolCrossingOver.Add(manager.gestore.mutazione(randomGenotipo, 1)[0]);
+
+            }
+        }
+
+        public void resetList()
+        { genotipoList.Clear(); }
+    
+    }
+
+    public class SpeciesManager
+    {
+        List<Species> speciesList;
+        public GestoreRN_NEAT gestore;
+        public SpeciesManager(GestoreRN_NEAT gestore)
+        {
+            this.gestore = gestore;
+            speciesList = new List<Species>();
+        }
+
+        public void addGenotipo(GenotipoRN genotipo)
+        {
+            bool speciesFind = false;
+            foreach (Species s in speciesList)
+            {
+                if (s.addGenotipo(genotipo))
+                {
+                    speciesFind = true;
+                    break;
+                }            
+            }
+
+            if (!speciesFind)
+                speciesList.Add(new Species(genotipo, this));
+        
+        }
+
+        public void DoNextGeneration()
+        {
+            List<GenotipoRN> poolCrossingOver=new List<GenotipoRN>();
+            
+            double sum =0;
+            foreach (Species s in speciesList)
+                sum += s.fitnessSum();
+
+            int assignedPlace = 0;
+            for (int i = 0; i < speciesList.Count; i++)
+            {
+                int placeInSpecies;
+                if (i != (speciesList.Count - 1))
+                    placeInSpecies = Convert.ToInt32(speciesList[i].fitnessSum() / sum * Params.INITIAL_POPULATION);
+                else
+                    placeInSpecies = Params.INITIAL_POPULATION - assignedPlace;
+                speciesList[i].GetNextGeneration(poolCrossingOver, placeInSpecies);
+                assignedPlace += placeInSpecies;            
+            }
+
+            foreach (Species s in speciesList)
+                s.resetList();
+
+            foreach (GenotipoRN g in poolCrossingOver)
+                addGenotipo(g);               
+        
+        }
+
+
+    }
 }
