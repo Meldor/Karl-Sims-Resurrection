@@ -20,7 +20,7 @@ namespace PoleBalancing
         public static float FloorYPosition = 10;
 
         //Parti
-        public static float MaxCartForce = 4.0f;
+        public static float MaxCartForce = 8.0f;
         public static float PartDensity = 0.1f;
 
         public static float Epsilon = 0.07f;

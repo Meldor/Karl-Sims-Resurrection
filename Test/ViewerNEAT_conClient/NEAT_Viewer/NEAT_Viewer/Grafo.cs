@@ -52,12 +52,12 @@ namespace NEAT_Viewer
             foreach (GenotipoRN.NeuroneG neurone in input.neuroniOutput)
                 nodi[neurone.neatID].tipo = TipoNeurone.NActuator;
             //crea gli archi e li inserisce nella lista archi del nodo di partenza
-            foreach(GenotipoRN.AssoneG assone in input.assoni)
+            foreach(KeyValuePair<int,GenotipoRN.AssoneG> assone in input.assoni)
             {
-                if (!assone.attivo)
+                if (!assone.Value.attivo)
                     continue;
-                Arco nuovo = new Arco(nodi[assone.output],nodi[assone.input], assone.neatID, assone.peso);
-                nodi[assone.input].addArco(nuovo);
+                Arco nuovo = new Arco(nodi[assone.Value.output],nodi[assone.Value.input], assone.Value.neatID, assone.Value.peso);
+                nodi[assone.Value.input].addArco(nuovo);
             }
             //definisce i livelli come distanza massima da un qualsiasi nodo di input; per far questo fa una visita in ampiezza
             //a partire dai nodi di input

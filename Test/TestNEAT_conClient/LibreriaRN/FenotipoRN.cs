@@ -23,17 +23,6 @@ namespace LibreriaRN
 
        #region Costruttori
 
-       //public FenotipoRN(int numS, int numA)
-       //{
-       //    neuroni = new SortedList<int,NeuroneF>();
-       //    neuroniA = new List<NeuroneF>();
-       //    neuroniS = new List<NeuroneF>();
-       //    //NEATLibrary = new SortedList<int, NeuroneStruct>();
-       //    NEAT_numID = 0;
-       //    numNeuroniSensori = numS;
-       //    numNeuroniAttuatori = numA;
-       //}
-
        public FenotipoRN(GenotipoRN genotipo)
        {
            neuroni = new SortedList<int,NeuroneF>();
@@ -48,12 +37,10 @@ namespace LibreriaRN
                neuroniS.Add(neuroni[neurone.neatID]);
            foreach (GenotipoRN.NeuroneG neurone in genotipo.neuroniOutput)
                neuroniA.Add(neuroni[neurone.neatID]);
-           foreach (GenotipoRN.AssoneG assone in genotipo.assoni)
-               if(assone.attivo)
-                    neuroni[assone.input].addAssone(assone, neuroni);
+           foreach (KeyValuePair<int, GenotipoRN.AssoneG> k_val_assone in genotipo.assoni)
+               if(k_val_assone.Value.attivo)
+                   neuroni[k_val_assone.Value.input].addAssone(k_val_assone.Value, neuroni);
            NEAT_numID = 0;
-           //numNeuroniSensori = neuroniS.Count;
-           //numNeuroniAttuatori = neuroniA.Count;
        }
 
        #endregion
@@ -201,7 +188,7 @@ namespace LibreriaRN
                _neatID = neuroneG.neatID;
                memoria = 0;
                _tipo = neuroneG.tipo;
-               funzioneSoglia = neuroneG.threshold;
+               funzioneSoglia = Threshold.getThresholdFromIndex(neuroneG.thresholdIndex);
                inputP = new List<double>();
                inputF = new List<double>();
                assoni = new List<AssoneF>();

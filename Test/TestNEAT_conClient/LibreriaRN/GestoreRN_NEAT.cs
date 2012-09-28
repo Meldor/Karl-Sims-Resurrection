@@ -80,14 +80,14 @@ namespace LibreriaRN
 
             int num = generatoreCasuale.Next(g.assoni.Count);
 
-            GenotipoRN.AssoneG assoneCorrente = g.assoni[num];
+            GenotipoRN.AssoneG assoneCorrente = g.assoni[g.assoni.Keys[num]];
             assoneCorrente.attivo = false;
-            g.assoni[num] = assoneCorrente;
+            g.assoni[g.assoni.Keys[num]] = assoneCorrente;
 
             g.addNeurone(new GenotipoRN.NeuroneG(contNeuroni, TipoNeurone.NHide));
-            g.addAssone(new GenotipoRN.AssoneG(contAssoni, g.assoni[num].input, contNeuroni, 1));
+            g.addAssone(new GenotipoRN.AssoneG(contAssoni, g.assoni[g.assoni.Keys[num]].input, contNeuroni, 1));
             contAssoni++;
-            g.addAssone(new GenotipoRN.AssoneG(contAssoni, contNeuroni, g.assoni[num].output, g.assoni[num].peso));
+            g.addAssone(new GenotipoRN.AssoneG(contAssoni, contNeuroni, g.assoni[g.assoni.Keys[num]].output, g.assoni[g.assoni.Keys[num]].peso));
             contAssoni++;
             contNeuroni++;
             return g;
@@ -111,10 +111,10 @@ namespace LibreriaRN
              * funzione di soglia disabilitando Params.transparentInput) così come i neuroni di output debbano solo portare le uscite agli attuatori.
              */
             do
-                neurone1 = genotipo.neuroni[generatoreCasuale.Next(indice)].neatID;
+                neurone1 = genotipo.neuroni.Keys[generatoreCasuale.Next(indice)];
             while (genotipo.neuroni[neurone1].tipo == TipoNeurone.NActuator);
             do
-                neurone2=genotipo.neuroni[generatoreCasuale.Next(indice)].neatID;
+                neurone2=genotipo.neuroni.Keys[generatoreCasuale.Next(indice)];
             while (genotipo.neuroni[neurone2].tipo == TipoNeurone.NSensor);
 
             for (int i = 0; i < g.numeroAssoni; i++)
@@ -125,9 +125,9 @@ namespace LibreriaRN
                  */
                 if (g.assoni[i].testaCollegamento(neurone1, neurone2))
                 {
-                    GenotipoRN.AssoneG assone = g.assoni[i];
+                    GenotipoRN.AssoneG assone = g.assoni[g.assoni.Keys[i]];
                     assone.raddoppia();
-                    g.assoni[i] = assone;
+                    g.assoni[g.assoni.Keys[i]] = assone;
                     esiste = true;
                     Console.WriteLine("Raddoppio " + neurone1 + " - " + neurone2);
                     break;
@@ -149,9 +149,9 @@ namespace LibreriaRN
 
             int num = generatoreCasuale.Next(g.assoni.Count);
 
-            GenotipoRN.AssoneG assoneCorrente = g.assoni[num];
+            GenotipoRN.AssoneG assoneCorrente = g.assoni[g.assoni.Keys[num]];
             assoneCorrente.modPeso(Utilita.pesoUniforme);
-            g.assoni[num] = assoneCorrente;
+            g.assoni[g.assoni.Keys[num]] = assoneCorrente;
             
             return g;
         }
@@ -163,9 +163,9 @@ namespace LibreriaRN
 
             int num = generatoreCasuale.Next(g.assoni.Count);
 
-            GenotipoRN.AssoneG assoneCorrente = g.assoni[num];
+            GenotipoRN.AssoneG assoneCorrente = g.assoni[g.assoni.Keys[num]];
             assoneCorrente.modPeso(1-2*generatoreCasuale.NextDouble());
-            g.assoni[num] = assoneCorrente;
+            g.assoni[g.assoni.Keys[num]] = assoneCorrente;
 
             return g;
         }

@@ -26,7 +26,9 @@ namespace TestNEAT_InterfacciaServer
         ClientNEAT clientPrincipale;
         Dictionary<String, GenotipoRN> genotipi;
         GenotipoRN genotipoSelezionato;
-        
+
+        delegate void funzioneVoid();
+
         public MainWindow()
         {
             InitializeComponent();
@@ -54,6 +56,7 @@ namespace TestNEAT_InterfacciaServer
                 connectButton.Content = "Connect";
                 tabSimulazione.IsEnabled = false;
                 connesso = false;
+                tabFenotipo.IsEnabled = false;
             }
         }
 
@@ -95,6 +98,8 @@ namespace TestNEAT_InterfacciaServer
             
             String messaggio = clientPrincipale.receive();
             clientPrincipale.writeConsole(messaggio);
+
+            tabFenotipo.IsEnabled = true;
         }
 
         private void listBox1_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -135,6 +140,36 @@ namespace TestNEAT_InterfacciaServer
             GenotipoRN mutato = gestore.mutazioneModificaPesoUniformemente(genotipoSelezionato);
             genotipi.Add(mutato.firma(), mutato);
             aggiornaLista();
+        }
+
+        private void generaFenotipoButton_Click(object sender, RoutedEventArgs e)
+        {
+            clientPrincipale.send("GF");
+
+            String messaggio = clientPrincipale.receive();
+            clientPrincipale.writeConsole(messaggio);
+
+            sendInputButton.IsEnabled = true;
+            inputFenotipoBox.IsEnabled = true;
+            outputBox.IsEnabled = true;
+            aggiornaButton.IsEnabled = true;
+        }
+
+        private void sendInputButton_Click(object sender, RoutedEventArgs e)
+        {
+            clientPrincipale.send("INPUT");
+
+            clientPrincipale.send(inputFenotipoBox.Text);
+
+            String messaggio = clientPrincipale.receive();
+            clientPrincipale.writeConsole(messaggio);
+        }
+
+        private void aggiornaButton_Click(object sender, RoutedEventArgs e)
+        {
+            clientPrincipale.send("AGG");
+
+            outputFenotipoBox.Text = clientPrincipale.receive();
         }
     }
 }
