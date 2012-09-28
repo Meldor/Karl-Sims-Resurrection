@@ -31,7 +31,6 @@ namespace LibreriaRN
                     return _thresholdIndex;
                 }
             }
-            private int _thresholdIndex;
 
             private List<int> _idAssoniInput;  //assoni in input per il neurone, quindi che hanno il neurone per output
             private List<int> _idAssoniOutput;
