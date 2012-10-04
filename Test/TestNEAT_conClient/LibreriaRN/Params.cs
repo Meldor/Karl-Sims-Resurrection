@@ -19,6 +19,6 @@ namespace LibreriaRN
         public const double mostFitParentInheritingProbability = 0.7;
 
         public const double SPECIES_MAX_DISTANCE = 50;
-        public const int INITIAL_POPULATION = 100;
+        public const int INITIAL_POPULATION = 5;
     }
 }

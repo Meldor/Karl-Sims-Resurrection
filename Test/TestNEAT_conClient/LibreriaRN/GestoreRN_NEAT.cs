@@ -9,28 +9,51 @@ namespace LibreriaRN
     {
         private int contNeuroni;
         private int contAssoni;
+        private int contGenotipo;
         public ICollection<GenotipoRN> genotipi;
         public List<GenotipoRN> population;
         public List<GenotipoRN> futurePopulation;
 
+        GenotipoRN perceptron;
+        SpeciesManager speciesManager;
+
         public GestoreRN_NEAT(int input, int output, int perceptronNumber=1)
         {
-            
+            contGenotipo = -1;
             contNeuroni = 0;
             contAssoni = 0;
             genotipi = new SortedSet<GenotipoRN>();
             population = new List<GenotipoRN>();
             futurePopulation = new List<GenotipoRN>();
 
-            generaPerceptron(input, output);
+            speciesManager = new SpeciesManager(this);
+
+            perceptron=generaPerceptron(input, output);
             for (int i = 0; i < perceptronNumber;i++)
             {
-                population.Add(mutazioneModificaPesoRadicalmenteTuttiAssoni(getPerceptron()));                
+                speciesManager.addGenotipo(mutazioneModificaPesoRadicalmenteTuttiAssoni(getPerceptron()));          
             }
+
+            population = speciesManager.GetListGenotipo();
+        }
+
+        public GenotipoRN GetGenotipo()
+        {
+            GenotipoRN g;
+
+            if (contGenotipo >= population.Count)
+            {
+                contGenotipo = -1;
+                speciesManager.DoNextGeneration();
+                population = speciesManager.GetListGenotipo();
+                
+            }
+            contGenotipo++;
+            return population[contGenotipo];
         }
 
         public GenotipoRN getPerceptron()
-        { return genotipi.First(); }
+        { return perceptron; }
 
         private GenotipoRN generaPerceptron(int input, int output)
         {
@@ -185,8 +208,6 @@ namespace LibreriaRN
         {
             GenotipoRN g = new GenotipoRN(genotipo);
             Random generatoreCasuale = new Random();
-
-            //int num = generatoreCasuale.Next(g.assoni.Count);
 
             for (int num = 0; num < g.assoni.Count; num++)
             {

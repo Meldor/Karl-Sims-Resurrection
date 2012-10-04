@@ -88,6 +88,8 @@ namespace PoleBalancing
 
         public void Update(float dt)
         {
+
+            bool returnFitness = false;
             double[] inputVector = new double[5];
             SortedList<int, double> output;
             inputVector[0] = GetPoleRotation(1)/(Convert.ToSingle(Math.PI));
@@ -113,14 +115,14 @@ namespace PoleBalancing
                 if (timeStep > Const.TIME_STEP)
                 {
                     fenotipo = null;
-                    ReturnFitnessEvent(currentFitness);
-                    
+                    resetCart();
+                    returnFitness = true;
+                    ReturnFitnessEvent(currentFitness);                    
                 }
                 timeStep++;
             }
 
-
-            world.Step(dt);
+            world.Step(dt);            
         }
 
         public void Draw(SpriteBatch spriteBatch, Texture2D rectTexture, Texture2D circTexture)
@@ -132,8 +134,7 @@ namespace PoleBalancing
         }
 
         public void SetFenotipo(FenotipoRN fenotipo) 
-        {
-            resetCart();
+        {            
             this.fenotipo = fenotipo;
             timeStep = 0;
             currentFitness = 0;
@@ -143,16 +144,42 @@ namespace PoleBalancing
         {
             if (pole1 != null)
             {
-                world.RemoveBody(pole1.Body);
-                world.RemoveJoint(pole1.Joint);
-            }   
+                pole1.Body.SleepingAllowed = true;
+                pole1.Joint.Enabled = false;
+
+                pole1.RemoveCollidesCategory(Category.Cat4);
+                pole1.CollisionCategory = Category.None;
+                
+            }
             if (pole2 != null)
             {
-                world.RemoveBody(pole2.Body);
+                pole2.Body.SleepingAllowed = true;
+                pole2.Joint.Enabled = false;
+
+                pole2.RemoveCollidesCategory(Category.Cat4);
+                pole2.CollisionCategory = Category.None;
+            }
+
+            if (cart != null)
+            {
+                cart.Body.SleepingAllowed = true;
+                cart.CollisionCategory = Category.None;
+            }
+            /*
+            if (pole1 != null && pole1.Joint != null && pole1.Body!= null)
+            {
+                world.RemoveJoint(pole1.Joint);
+                world.RemoveBody(pole1.Body);               
+            }
+            if (pole2 != null && pole2.Joint != null && pole2.Body != null)
+            {
                 world.RemoveJoint(pole2.Joint);
+                world.RemoveBody(pole2.Body);               
             }  
-            if(cart != null)
+            if(cart != null && cart.Body != null)
                 world.RemoveBody(cart.Body);
+            */
+
             cart = new FParte(cartSize, cartPosition, Const.PartDensity * 3, world);
             cart.CollisionCategory = Category.Cat4;
 

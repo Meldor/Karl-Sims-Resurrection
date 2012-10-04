@@ -145,13 +145,16 @@ namespace LibreriaRN
     {
         SpeciesManager manager;
         GenotipoRN champion;
-        SortedList<float, GenotipoRN> genotipoList;
+
+        List<GenotipoRN> gList;
+
         public Species(GenotipoRN champion, SpeciesManager manager)
         {
             this.manager = manager;
             this.champion = champion;
-            genotipoList = new SortedList<float, GenotipoRN>();
-            genotipoList.Add(champion.Fitness, champion);
+
+            gList = new List<GenotipoRN>();
+            gList.Add(champion);            
         }
 
         public bool addGenotipo(GenotipoRN genotipo)
@@ -162,7 +165,7 @@ namespace LibreriaRN
             if (distance < Params.SPECIES_MAX_DISTANCE)
             {
                 inSpecies = true;
-                genotipoList.Add(genotipo.Fitness, genotipo);
+                gList.Add(genotipo);
             }
 
             return inSpecies;
@@ -171,9 +174,9 @@ namespace LibreriaRN
         public double fitnessSum()
         {
             double sum = 0;
-            foreach (GenotipoRN g in genotipoList.Values)
+            foreach (GenotipoRN g in gList)
                 sum += g.Fitness;
-            return sum / genotipoList.Count;        
+            return sum / gList.Count;        
         }
 
         public void GetNextGeneration(List<GenotipoRN> poolCrossingOver, int numberMax)
@@ -182,39 +185,41 @@ namespace LibreriaRN
             GenotipoRN parent1 = null;
             GenotipoRN parent2 = null;
 
-            int n= genotipoList.Count;
+            gList.Sort();
+
+            int n= gList.Count;
             int gaussNumber = (n * (n + 1)) / 2;
             int extractNumber;
             int generateCreatureNumber=1;
 
-            poolCrossingOver.Add(genotipoList.First().Value);
+            poolCrossingOver.Add(gList.First());
 
             while (generateCreatureNumber < (3*numberMax/4 -1))
             {
                 extractNumber=r.Next(gaussNumber);
                 int accumulator = n;
-                for (int i = 0; i < genotipoList.Count; i++)
+                for (int i = 0; i < gList.Count; i++)
                 {
                     if (extractNumber < accumulator)
                     {
-                        parent1 = genotipoList.ElementAt(i).Value;
+                        parent1 = gList.ElementAt(i);
                         break;
                     }
                     else
-                        accumulator += genotipoList.Count - i - 1;
+                        accumulator += gList.Count - i - 1;
                 }
 
                 extractNumber = r.Next(gaussNumber);
                 accumulator = n;
-                for (int i = 0; i < genotipoList.Count; i++)
+                for (int i = 0; i < gList.Count; i++)
                 {
                     if (extractNumber < accumulator)
                     {
-                        parent2 = genotipoList.ElementAt(i).Value;
+                        parent2 = gList.ElementAt(i);
                         break;
                     }
                     else
-                        accumulator += genotipoList.Count - i - 1;
+                        accumulator += gList.Count - i - 1;
                 }
                 GenotipoRN child = new GenotipoRN(parent1, parent1.Fitness, parent2, parent2.Fitness);
 
@@ -227,15 +232,15 @@ namespace LibreriaRN
                 GenotipoRN randomGenotipo = null;
                 extractNumber = r.Next(gaussNumber);
                 int accumulator = n;
-                for (int i = 0; i < genotipoList.Count; i++)
+                for (int i = 0; i < gList.Count; i++)
                 {
                     if (extractNumber < accumulator)
                     {
-                        randomGenotipo = genotipoList.ElementAt(i).Value;
+                        randomGenotipo = gList[i];
                         break;
                     }
                     else
-                        accumulator += genotipoList.Count - i - 1;
+                        accumulator += gList.Count - i - 1;
                 }
 
                  poolCrossingOver.Add(manager.gestore.mutazione(randomGenotipo, 1)[0]);
@@ -243,8 +248,13 @@ namespace LibreriaRN
             }
         }
 
+        public List<GenotipoRN> GetListGenotipo()
+        {
+            return new List<GenotipoRN>(gList);
+        }
+
         public void resetList()
-        { genotipoList.Clear(); }
+        { gList.Clear(); }
     
     }
 
@@ -299,7 +309,18 @@ namespace LibreriaRN
                 s.resetList();
 
             foreach (GenotipoRN g in poolCrossingOver)
-                addGenotipo(g);               
+                addGenotipo(g);             
+        
+        }
+
+        public List<GenotipoRN> GetListGenotipo()
+        {
+            List<GenotipoRN> lista = new List<GenotipoRN>();
+
+            foreach (Species specie in speciesList)
+                lista.AddRange(specie.GetListGenotipo());
+
+            return lista;
         
         }
 

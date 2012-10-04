@@ -13,7 +13,6 @@ namespace PoleBalancing
         public event SetFenotipo ReadyFenotipo;
 
         private Cart cart;
-        private int genotipoCount=0;
 
         GestoreRN_NEAT evolutionManager;
         GenotipoRN genotipoInTest;
@@ -33,24 +32,19 @@ namespace PoleBalancing
                 j++;
             }
             
+            
             ReadyFenotipo += new SetFenotipo(cart.SetFenotipo);
             cart.ReturnFitnessEvent += new Cart.ReturnFitness(finishedSimulation);
-            ReadyFenotipo(new FenotipoRN(vectorGenotipo[genotipoCount]));
+
+            genotipoInTest = evolutionManager.GetGenotipo();
+            ReadyFenotipo(new FenotipoRN(genotipoInTest));
        }
 
         private void finishedSimulation(int fitness)
         {
-            vectorGenotipo[genotipoCount].Fitness = fitness;
-            genotipoCount++;
-
-            if (genotipoCount < evolutionManager.population.Count)
-            {
-                ReadyFenotipo(new FenotipoRN(vectorGenotipo[genotipoCount]));
-            }
-            else
-            { 
-            
-            }
+            genotipoInTest.Fitness = fitness;
+            genotipoInTest = evolutionManager.GetGenotipo();
+            ReadyFenotipo(new FenotipoRN(genotipoInTest));           
         }
 
     }
