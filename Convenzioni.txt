@@ -1,0 +1,29 @@
+Nomi: Inglese
+
+Oggetti membro: 
+				privati iniziale minuscola, 
+				pubblici iniziale maiuscola
+				statici s o S con _
+Classi:			
+				Iniziali mauiscole
+				se statica inizia con S con _
+				
+metodi: come dati membro
+
+Più parole alternanza maiuscole minuscole
+
+parametri: sempre iniziale minuscola
+
+nessun _ all'interno delle variabili
+
+costanti tutte maiuscole con _ all'interno
+
+Racchiudere con region dove necessario
+
+Aggiungere i summary in italiano
+
+Usare sempre get set come property
+
+Commenti!!!!
+
+Nomi significativi

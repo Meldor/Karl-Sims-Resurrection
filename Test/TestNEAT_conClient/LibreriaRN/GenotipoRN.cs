@@ -11,6 +11,7 @@ namespace LibreriaRN
     [Serializable]
     public class GenotipoRN : IComparable<GenotipoRN>
     {
+        #region NeuroneAndAssone
         [Serializable]
         public struct NeuroneG : IComparable<NeuroneG>
         {
@@ -70,7 +71,8 @@ namespace LibreriaRN
                     _thresholdIndex = thresholdFunctionIndex;
             }
 
-            public NeuroneG(int idNEAT, TipoNeurone tipo): this(idNEAT, tipo, Threshold.getRandomIndex())
+            public NeuroneG(int idNEAT, TipoNeurone tipo)
+                : this(idNEAT, tipo, Threshold.getRandomIndex())
             {
 
             }
@@ -158,7 +160,7 @@ namespace LibreriaRN
             { this.attivo = false; }
 
             public void modPeso(double p)
-            { 
+            {
                 _peso += p;
                 if (_peso > 1)
                     _peso = 1;
@@ -167,7 +169,7 @@ namespace LibreriaRN
             }
 
             public void raddoppia()
-            { 
+            {
                 _peso *= 2;
                 if (_peso > 1)
                     _peso = 1;
@@ -191,8 +193,10 @@ namespace LibreriaRN
 
             public int CompareTo(AssoneG other)
             { return neatID - other.neatID; }
-        }
+        } 
+        #endregion
 
+        #region Oggetti membro
         public int t; //cos'è?
         public SortedList<int, AssoneG> assoni;
         public SortedList<int, NeuroneG> neuroni;
@@ -244,6 +248,14 @@ namespace LibreriaRN
         {
             get { return assoni.Keys.Max<int>(); }
         }
+
+        private float fitness;
+        public float Fitness
+        {
+            get { return fitness; }
+            set { fitness = value; }
+        }
+        #endregion
 
         #region Costruttori
 
@@ -541,7 +553,7 @@ namespace LibreriaRN
         }
 
         public int CompareTo(GenotipoRN other)
-        { return t - other.t; }
+        { return Convert.ToInt32(fitness - other.fitness); }
 
         public bool contieneNeuroneID(int n)
         {

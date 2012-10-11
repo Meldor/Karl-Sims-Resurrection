@@ -9,20 +9,53 @@ namespace LibreriaRN
     {
         private int contNeuroni;
         private int contAssoni;
+        private int contGenotipo;
         public ICollection<GenotipoRN> genotipi;
+        public List<GenotipoRN> population;
+        public List<GenotipoRN> futurePopulation;
 
-        public GestoreRN_NEAT(int input, int output)
+        GenotipoRN perceptron;
+        SpeciesManager speciesManager;
+
+        public GestoreRN_NEAT(int input, int output, int perceptronNumber=1)
         {
+            contGenotipo = -1;
             contNeuroni = 0;
             contAssoni = 0;
             genotipi = new SortedSet<GenotipoRN>();
-            generaPerceptron(input, output);
+            population = new List<GenotipoRN>();
+            futurePopulation = new List<GenotipoRN>();
+
+            speciesManager = new SpeciesManager(this);
+
+            perceptron=generaPerceptron(input, output);
+            for (int i = 0; i < perceptronNumber;i++)
+            {
+                speciesManager.addGenotipo(mutazioneModificaPesoRadicalmenteTuttiAssoni(getPerceptron()));          
+            }
+
+            population = speciesManager.GetListGenotipo();
+        }
+
+        public GenotipoRN GetGenotipo()
+        {
+            GenotipoRN g;
+
+            if (contGenotipo >= population.Count)
+            {
+                contGenotipo = -1;
+                speciesManager.DoNextGeneration();
+                population = speciesManager.GetListGenotipo();
+                
+            }
+            contGenotipo++;
+            return population[contGenotipo];
         }
 
         public GenotipoRN getPerceptron()
-        { return genotipi.First(); }
+        { return perceptron; }
 
-        private void generaPerceptron(int input, int output)
+        private GenotipoRN generaPerceptron(int input, int output)
         {
             Random generatoreCasuale = new Random();
             GenotipoRN p = new GenotipoRN();
@@ -43,6 +76,7 @@ namespace LibreriaRN
                 }
 
             genotipi.Add(p);
+            return p;
         }
 
         public GenotipoRN[] mutazione(GenotipoRN genotipo, int num)
@@ -170,5 +204,18 @@ namespace LibreriaRN
             return g;
         }
 
+        private GenotipoRN mutazioneModificaPesoRadicalmenteTuttiAssoni(GenotipoRN genotipo)
+        {
+            GenotipoRN g = new GenotipoRN(genotipo);
+            Random generatoreCasuale = new Random();
+
+            for (int num = 0; num < g.assoni.Count; num++)
+            {
+                GenotipoRN.AssoneG assoneCorrente = g.assoni[g.assoni.Keys[num]];
+                assoneCorrente.modPeso(1 - 2 * generatoreCasuale.NextDouble());
+                g.assoni[g.assoni.Keys[num]] = assoneCorrente;
+            }
+            return g;
+        }
     }
 }
