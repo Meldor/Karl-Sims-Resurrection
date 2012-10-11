@@ -227,6 +227,7 @@ namespace LibreriaRN
         {
             get { return assoni.Count; }
         }
+
         public int numeroNeuroni
         {
             get { return neuroni.Count; }

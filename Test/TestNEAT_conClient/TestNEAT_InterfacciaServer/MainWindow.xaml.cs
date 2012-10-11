@@ -86,7 +86,7 @@ namespace TestNEAT_InterfacciaServer
         }
         private void aggiornaDialogBox()
         {
-            dialogBox.Text = genotipoSelezionato.toString();
+            dialogBox.Text = genotipoSelezionato.ToString();
         }
 
         private void visualizzaButton_Click(object sender, RoutedEventArgs e)

@@ -64,6 +64,7 @@ namespace NEAT_Viewer
         {
             rectTexture = DrawingHelper.GenerateRectangularTexture(graphics.GraphicsDevice, 1000, 1000, Color.White);
             IsMouseVisible = true;
+            IsFixedTimeStep = true;
             GestoreRN_NEAT gestore = new GestoreRN_NEAT(3, 2);
             GenotipoRN genotipo = gestore.getPerceptron();
             GenotipoRN g_mutato = gestore.mutazioneAggiungiNeurone(genotipo);

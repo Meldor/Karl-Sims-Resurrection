@@ -25,11 +25,7 @@ namespace PoleBalancing
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        Fixture floor;
-
-        FParte pole1;
         Vector2 pole1Size;
-        FParte pole2;
         Vector2 pole2Size;
         Vector2 poleOffset;
 
